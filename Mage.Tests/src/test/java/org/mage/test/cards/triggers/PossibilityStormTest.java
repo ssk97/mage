@@ -42,7 +42,7 @@ public class PossibilityStormTest extends CardTestPlayerBase {
         addCard(Zone.LIBRARY, playerA, "Silvercoat Lion");
         skipInitShuffling();
 
-        playLand(1, PhaseStep.PRECOMBAT_MAIN, playerA, "Zoetic Cavern with Morph");
+        castSpell(1, PhaseStep.PRECOMBAT_MAIN, playerA, "Zoetic Cavern with Morph");
 
         setStopAt(1, PhaseStep.BEGIN_COMBAT);
         execute();

@@ -116,27 +116,6 @@ public class MorphAbility extends SpellAbility {
         this.costsTagMap.put(MORPH_ACTIVATION_KEY,1);
         return true;
     }
-    /*@Override
-    public boolean askToActivateAlternativeCosts(Ability ability, Game game) {
-        switch (ability.getAbilityType()) {
-            case SPELL:
-                Spell spell = game.getStack().getSpell(ability.getId());
-                if (spell != null) {
-                    spell.setFaceDown(true, game);
-                    if (handleActivatingAlternativeCosts(ability, game)) {
-                        game.getState().setValue("MorphAbility" + ability.getSourceId(), "activated");
-                        spell.getColor(game).setColor(null);
-                        game.getState().getCreateMageObjectAttribute(spell.getCard(), game).getSubtype().clear();
-                    } else {
-                        spell.setFaceDown(false, game);
-                    }
-                }
-                break;
-            case PLAY_LAND:
-                handleActivatingAlternativeCosts(ability, game);
-        }
-        return isActivated(ability, game);
-    }*/
 
     public Costs<Cost> getMorphCosts() {
         return morphCosts;

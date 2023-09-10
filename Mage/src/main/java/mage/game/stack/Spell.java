@@ -77,7 +77,7 @@ public class Spell extends StackObjectImpl implements Card {
             affectedCard = TransformAbility.transformCardSpellStatic(card, card.getSecondCardFace(), game);
         }
         if (ability.getSpellAbilityCastMode() == SpellAbilityCastMode.MORPH){
-            faceDown = true;
+            this.faceDown = true;
         }
 
         this.card = affectedCard;
