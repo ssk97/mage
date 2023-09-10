@@ -48,7 +48,7 @@ public enum SpellAbilityCastMode {
             BestowAbility.becomeAura(cardCopy);
         }
         if (this.equals(MORPH)) {
-            MorphAbility.setPermanentToFaceDownCreature(cardCopy, null, game);
+            MorphAbility.setObjectToFaceDownCreature(cardCopy, game);
         }
         return cardCopy;
     }

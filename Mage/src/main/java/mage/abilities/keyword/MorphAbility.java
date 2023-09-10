@@ -16,6 +16,7 @@ import mage.cards.Card;
 import mage.constants.CardType;
 import mage.constants.Rarity;
 import mage.constants.SpellAbilityCastMode;
+import mage.constants.TimingRule;
 import mage.game.Game;
 import mage.game.permanent.Permanent;
 import mage.game.permanent.token.EmptyToken;
@@ -82,7 +83,7 @@ public class MorphAbility extends SpellAbility {
     }
 
     public MorphAbility(Card card, Cost morphCost, boolean megamorph) {
-        super(new GenericManaCost(3), card.getName() + " with "+(megamorph ? ABILITY_KEYWORD_MEGA : ABILITY_KEYWORD));
+        super(new GenericManaCost(3), card.getName() + " with " + ABILITY_KEYWORD);
         this.morphCosts = new CostsImpl<>();
         this.morphCosts.add(morphCost);
         this.megamorph = megamorph;
@@ -92,6 +93,7 @@ public class MorphAbility extends SpellAbility {
                 morphCosts, (megamorph ? FaceDownType.MEGAMORPHED : FaceDownType.MORPHED)));
         ability.setWorksFaceDown(true);
         ability.setRuleVisible(false);
+        this.timing = TimingRule.SORCERY;
         addSubAbility(ability);
     }
 
@@ -157,16 +159,7 @@ public class MorphAbility extends SpellAbility {
      * @param game
      */
     public static void setPermanentToFaceDownCreature(MageObject targetObject, Permanent sourcePermanent, Game game) {
-        targetObject.getPower().setModifiedBaseValue(2);
-        targetObject.getToughness().setModifiedBaseValue(2);
-        targetObject.getAbilities().clear();
-        targetObject.getColor(game).setColor(new ObjectColor());
-        targetObject.setName("");
-        targetObject.removeAllCardTypes(game);
-        targetObject.addCardType(game, CardType.CREATURE);
-        targetObject.removeAllSubTypes(game);
-        targetObject.removeAllSuperTypes(game);
-        targetObject.getManaCost().clear();
+        setObjectToFaceDownCreature(targetObject, game);
 
         Token emptyImage = new EmptyToken();
 
@@ -181,5 +174,17 @@ public class MorphAbility extends SpellAbility {
         } else {
             throw new IllegalArgumentException("Wrong code usage: un-supported targetObject in face down method: " + targetObject.getClass().getSimpleName());
         }
+    }
+    public static void setObjectToFaceDownCreature(MageObject targetObject, Game game) {
+        targetObject.getPower().setModifiedBaseValue(2);
+        targetObject.getToughness().setModifiedBaseValue(2);
+        targetObject.getAbilities().clear();
+        targetObject.getColor(game).setColor(new ObjectColor());
+        targetObject.setName("");
+        targetObject.removeAllCardTypes(game);
+        targetObject.addCardType(game, CardType.CREATURE);
+        targetObject.removeAllSubTypes(game);
+        targetObject.removeAllSuperTypes(game);
+        targetObject.getManaCost().clear();
     }
 }
