@@ -971,12 +971,12 @@ public class MorphTest extends CardTestPlayerBase {
         //
         addCard(Zone.HAND, playerA, "Island", 1);
 
+        checkPlayableAbility("before", 1, PhaseStep.PRECOMBAT_MAIN, playerA, "Play Zoetic Cavern", true);
         // play land first
         playLand(1, PhaseStep.PRECOMBAT_MAIN, playerA, "Island");
 
         // morph ability (play as face down) calls from playLand method, so it visible for play land command
-        checkPlayableAbility("before", 1, PhaseStep.PRECOMBAT_MAIN, playerA, "Play Zoetic Cavern", true);
-        checkPlayableAbility("morph must be replaced by play ability", 1, PhaseStep.PRECOMBAT_MAIN, playerA, "Morph", false);
+        checkPlayableAbility("after", 1, PhaseStep.PRECOMBAT_MAIN, playerA, "Play Zoetic Cavern", false);
         castSpell(1, PhaseStep.PRECOMBAT_MAIN, playerA, "Zoetic Cavern with Morph");
 
         setStrictChooseMode(true);
@@ -1063,7 +1063,7 @@ public class MorphTest extends CardTestPlayerBase {
         // Face-down creature spells you cast cost {1} less to cast.
         addCard(Zone.BATTLEFIELD, playerA, "Dream Chisel");
 
-        checkPlayableAbility("can", 1, PhaseStep.PRECOMBAT_MAIN, playerA, "Cast Willbender", true);
+        checkPlayableAbility("can", 1, PhaseStep.PRECOMBAT_MAIN, playerA, "Cast Willbender with Morph", true);
         activateAbility(1, PhaseStep.PRECOMBAT_MAIN, playerA, "Cast Willbender with Morph");
 
         setStrictChooseMode(true);
@@ -1085,16 +1085,16 @@ public class MorphTest extends CardTestPlayerBase {
         addCard(Zone.BATTLEFIELD, playerA, "Kadena, Slinking Sorcerer");
 
         // creature one - get cost reduce
-        checkPlayableAbility("can", 1, PhaseStep.PRECOMBAT_MAIN, playerA, "Cast Willbender", true);
+        checkPlayableAbility("can", 1, PhaseStep.PRECOMBAT_MAIN, playerA, "Cast Willbender with Morph", true);
         activateAbility(1, PhaseStep.PRECOMBAT_MAIN, playerA, "Cast Willbender with Morph");
         waitStackResolved(1, PhaseStep.PRECOMBAT_MAIN);
 
         // creature two - do not get cost reduce
-        checkPlayableAbility("can't by no reduce", 1, PhaseStep.PRECOMBAT_MAIN, playerA, "Cast Willbender", false);
+        checkPlayableAbility("can't by no reduce", 1, PhaseStep.PRECOMBAT_MAIN, playerA, "Cast Willbender with Morph", false);
 
         // on next turn it can cost reduce again
-        checkPlayableAbility("can't by not your turn", 2, PhaseStep.PRECOMBAT_MAIN, playerA, "Cast Willbender", false);
-        checkPlayableAbility("can", 3, PhaseStep.PRECOMBAT_MAIN, playerA, "Cast Willbender", true);
+        checkPlayableAbility("can't by not your turn", 2, PhaseStep.PRECOMBAT_MAIN, playerA, "Cast Willbender with Morph", false);
+        checkPlayableAbility("can", 3, PhaseStep.PRECOMBAT_MAIN, playerA, "Cast Willbender with Morph", true);
 
         setStrictChooseMode(true);
         setStopAt(3, PhaseStep.END_TURN);

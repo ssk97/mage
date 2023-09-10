@@ -65,8 +65,6 @@ import mage.util.CardUtil;
  * @author LevelX2
  */
 public class MorphAbility extends SpellAbility {
-
-    protected static final String MORPH_ACTIVATION_KEY = "MorphActivationKey";
     protected static final String ABILITY_KEYWORD = "Morph";
     protected static final String ABILITY_KEYWORD_MEGA = "Megamorph";
     protected static final String REMINDER_TEXT = "You may cast this card face down as a "
@@ -106,15 +104,6 @@ public class MorphAbility extends SpellAbility {
     @Override
     public MorphAbility copy() {
         return new MorphAbility(this);
-    }
-
-    @Override
-    public boolean activate(Game game, boolean noMana) {
-        if (!super.activate(game, noMana)) {
-            return false;
-        }
-        this.costsTagMap.put(MORPH_ACTIVATION_KEY,1);
-        return true;
     }
 
     public Costs<Cost> getMorphCosts() {
