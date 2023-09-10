@@ -3,8 +3,8 @@ package mage.abilities.keyword;
 import mage.MageObject;
 import mage.ObjectColor;
 import mage.abilities.Ability;
+import mage.abilities.SpellAbility;
 import mage.abilities.common.SimpleStaticAbility;
-import mage.abilities.costs.AlternativeSourceCostsImpl;
 import mage.abilities.costs.Cost;
 import mage.abilities.costs.Costs;
 import mage.abilities.costs.CostsImpl;
@@ -12,13 +12,14 @@ import mage.abilities.costs.mana.GenericManaCost;
 import mage.abilities.costs.mana.ManaCost;
 import mage.abilities.effects.common.continuous.BecomesFaceDownCreatureEffect;
 import mage.abilities.effects.common.continuous.BecomesFaceDownCreatureEffect.FaceDownType;
+import mage.cards.Card;
 import mage.constants.CardType;
 import mage.constants.Rarity;
+import mage.constants.SpellAbilityCastMode;
 import mage.game.Game;
 import mage.game.permanent.Permanent;
 import mage.game.permanent.token.EmptyToken;
 import mage.game.permanent.token.Token;
-import mage.game.stack.Spell;
 import mage.util.CardUtil;
 
 /**
@@ -62,8 +63,9 @@ import mage.util.CardUtil;
  *
  * @author LevelX2
  */
-public class MorphAbility extends AlternativeSourceCostsImpl {
+public class MorphAbility extends SpellAbility {
 
+    protected static final String MORPH_ACTIVATION_KEY = "MorphActivationKey";
     protected static final String ABILITY_KEYWORD = "Morph";
     protected static final String ABILITY_KEYWORD_MEGA = "Megamorph";
     protected static final String REMINDER_TEXT = "You may cast this card face down as a "
@@ -75,15 +77,16 @@ public class MorphAbility extends AlternativeSourceCostsImpl {
     // needed to check activation status, if card changes zone after casting it
     private final boolean megamorph;
 
-    public MorphAbility(Cost morphCost) {
-        this(morphCost, false);
+    public MorphAbility(Card card, Cost morphCost) {
+        this(card, morphCost, false);
     }
 
-    public MorphAbility(Cost morphCost, boolean megamorph) {
-        super(megamorph ? ABILITY_KEYWORD_MEGA : ABILITY_KEYWORD, megamorph ? REMINDER_TEXT_MEGA : REMINDER_TEXT, new GenericManaCost(3));
+    public MorphAbility(Card card, Cost morphCost, boolean megamorph) {
+        super(new GenericManaCost(3), card.getName() + " with "+(megamorph ? ABILITY_KEYWORD_MEGA : ABILITY_KEYWORD));
         this.morphCosts = new CostsImpl<>();
         this.morphCosts.add(morphCost);
         this.megamorph = megamorph;
+        this.setSpellAbilityCastMode(SpellAbilityCastMode.MORPH);
         this.setWorksFaceDown(true);
         Ability ability = new SimpleStaticAbility(new BecomesFaceDownCreatureEffect(
                 morphCosts, (megamorph ? FaceDownType.MEGAMORPHED : FaceDownType.MORPHED)));
@@ -104,6 +107,14 @@ public class MorphAbility extends AlternativeSourceCostsImpl {
     }
 
     @Override
+    public boolean activate(Game game, boolean noMana) {
+        if (!super.activate(game, noMana)) {
+            return false;
+        }
+        this.costsTagMap.put(MORPH_ACTIVATION_KEY,1);
+        return true;
+    }
+    /*@Override
     public boolean askToActivateAlternativeCosts(Ability ability, Game game) {
         switch (ability.getAbilityType()) {
             case SPELL:
@@ -123,7 +134,7 @@ public class MorphAbility extends AlternativeSourceCostsImpl {
                 handleActivatingAlternativeCosts(ability, game);
         }
         return isActivated(ability, game);
-    }
+    }*/
 
     public Costs<Cost> getMorphCosts() {
         return morphCosts;
@@ -132,8 +143,10 @@ public class MorphAbility extends AlternativeSourceCostsImpl {
     @Override
     public String getRule() {
         boolean isMana = morphCosts.get(0) instanceof ManaCost;
-        return alternativeCost.getName() + (isMana ? " " : "&mdash;") +
-                morphCosts.getText() + (isMana ? ' ' : ". ") + alternativeCost.getReminderText();
+        String name = megamorph ? ABILITY_KEYWORD_MEGA : ABILITY_KEYWORD;
+        String reminder = megamorph ? REMINDER_TEXT_MEGA : REMINDER_TEXT;
+        return name + (isMana ? " " : "&mdash;") +
+                morphCosts.getText() + (isMana ? ' ' : ". ") + reminder;
     }
 
     /**

@@ -1,8 +1,10 @@
 package mage.constants;
 
 import mage.abilities.keyword.BestowAbility;
+import mage.abilities.keyword.MorphAbility;
 import mage.cards.Card;
 import mage.game.Game;
+import mage.game.permanent.token.EmptyToken;
 
 /**
  * @author LevelX2
@@ -12,6 +14,7 @@ public enum SpellAbilityCastMode {
     MADNESS("Madness"),
     FLASHBACK("Flashback"),
     BESTOW("Bestow"),
+    MORPH("Morph"),
     TRANSFORMED("Transformed", true),
     DISTURB("Disturb", true),
     MORE_THAN_MEETS_THE_EYE("More than Meets the Eye", true);
@@ -43,6 +46,9 @@ public enum SpellAbilityCastMode {
         Card cardCopy = card.copy();
         if (this.equals(BESTOW)) {
             BestowAbility.becomeAura(cardCopy);
+        }
+        if (this.equals(MORPH)) {
+            MorphAbility.setPermanentToFaceDownCreature(cardCopy, null, game);
         }
         return cardCopy;
     }

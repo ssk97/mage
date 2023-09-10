@@ -77,6 +77,9 @@ public class Spell extends StackObjectImpl implements Card {
             // simulate another side as new card (another code part in continues effect from disturb ability)
             affectedCard = TransformAbility.transformCardSpellStatic(card, card.getSecondCardFace(), game);
         }
+        if (ability.getSpellAbilityCastMode() == SpellAbilityCastMode.MORPH){
+            faceDown = true;
+        }
 
         this.card = affectedCard;
         this.color = affectedCard.getColor(null).copy();
