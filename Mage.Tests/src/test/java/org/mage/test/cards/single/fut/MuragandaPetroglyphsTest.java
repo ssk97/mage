@@ -50,7 +50,7 @@ public class MuragandaPetroglyphsTest extends CardTestPlayerBase {
         // Creatures with no abilities get +2/+2.
         addCard(Zone.BATTLEFIELD, playerA, "Muraganda Petroglyphs", 1);
 
-        castSpell(1, PhaseStep.PRECOMBAT_MAIN, playerA, "Pine Walker with Morph");
+        castSpell(1, PhaseStep.PRECOMBAT_MAIN, playerA, "Pine Walker using Morph");
 
         setStrictChooseMode(true);
         setStopAt(1, PhaseStep.BEGIN_COMBAT);
@@ -71,7 +71,7 @@ public class MuragandaPetroglyphsTest extends CardTestPlayerBase {
         // Creatures with no abilities get +2/+2.
         addCard(Zone.BATTLEFIELD, playerA, "Muraganda Petroglyphs", 1);
 
-        castSpell(1, PhaseStep.PRECOMBAT_MAIN, playerA, "Pine Walker with Morph");
+        castSpell(1, PhaseStep.PRECOMBAT_MAIN, playerA, "Pine Walker using Morph");
 
         setStrictChooseMode(true);
         setStopAt(1, PhaseStep.BEGIN_COMBAT);

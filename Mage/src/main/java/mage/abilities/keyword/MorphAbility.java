@@ -13,10 +13,7 @@ import mage.abilities.costs.mana.ManaCost;
 import mage.abilities.effects.common.continuous.BecomesFaceDownCreatureEffect;
 import mage.abilities.effects.common.continuous.BecomesFaceDownCreatureEffect.FaceDownType;
 import mage.cards.Card;
-import mage.constants.CardType;
-import mage.constants.Rarity;
-import mage.constants.SpellAbilityCastMode;
-import mage.constants.TimingRule;
+import mage.constants.*;
 import mage.game.Game;
 import mage.game.permanent.Permanent;
 import mage.game.permanent.token.EmptyToken;
@@ -81,17 +78,18 @@ public class MorphAbility extends SpellAbility {
     }
 
     public MorphAbility(Card card, Cost morphCost, boolean megamorph) {
-        super(new GenericManaCost(3), card.getName() + " with " + ABILITY_KEYWORD);
+        super(new GenericManaCost(3), card.getName());
         this.morphCosts = new CostsImpl<>();
         this.morphCosts.add(morphCost);
         this.megamorph = megamorph;
         this.setSpellAbilityCastMode(SpellAbilityCastMode.MORPH);
+        this.setSpellAbilityType(SpellAbilityType.FACE_DOWN_CREATURE);
         this.setWorksFaceDown(true);
+        this.timing = TimingRule.SORCERY;
         Ability ability = new SimpleStaticAbility(new BecomesFaceDownCreatureEffect(
                 morphCosts, (megamorph ? FaceDownType.MEGAMORPHED : FaceDownType.MORPHED)));
         ability.setWorksFaceDown(true);
         ability.setRuleVisible(false);
-        this.timing = TimingRule.SORCERY;
         addSubAbility(ability);
     }
 
@@ -108,6 +106,13 @@ public class MorphAbility extends SpellAbility {
 
     public Costs<Cost> getMorphCosts() {
         return morphCosts;
+    }
+    @Override
+    public boolean activate(Game game, boolean noMana) {
+        if (super.activate(game, noMana)) {
+            return true;
+        }
+        return false;
     }
 
     @Override

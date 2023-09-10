@@ -73,7 +73,7 @@ public class PurphorosGodOfTheForgeTest extends CardTestPlayerBase {
         addCard(Zone.HAND, playerA, "Ashcloud Phoenix");
 
 
-        castSpell(1, PhaseStep.PRECOMBAT_MAIN, playerA, "Ashcloud Phoenix with Morph");
+        castSpell(1, PhaseStep.PRECOMBAT_MAIN, playerA, "Ashcloud Phoenix using Morph");
 
         setStopAt(1, PhaseStep.BEGIN_COMBAT);
         execute();

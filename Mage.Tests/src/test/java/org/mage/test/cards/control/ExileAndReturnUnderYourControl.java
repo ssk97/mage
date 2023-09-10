@@ -91,7 +91,7 @@ public class ExileAndReturnUnderYourControl extends CardTestPlayerBase {
 
         setStrictChooseMode(true);
 
-        castSpell(1, PhaseStep.PRECOMBAT_MAIN, playerA, "Master of Pearls with Morph", true);
+        castSpell(1, PhaseStep.PRECOMBAT_MAIN, playerA, "Master of Pearls using Morph", true);
 
         castSpell(1, PhaseStep.PRECOMBAT_MAIN, playerA, "Villainous Wealth", playerB);
         setChoice(playerA, "X=3");

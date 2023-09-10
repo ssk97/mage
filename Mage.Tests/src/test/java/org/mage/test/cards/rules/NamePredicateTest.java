@@ -26,7 +26,7 @@ public class NamePredicateTest extends CardTestPlayerBase {
         addCard(Zone.HAND, playerA, "Pine Walker"); // {3}{G}{G}
         addCard(Zone.BATTLEFIELD, playerA, "Forest", 3);
 
-        castSpell(1, PhaseStep.PRECOMBAT_MAIN, playerA, "Pine Walker with Morph");
+        castSpell(1, PhaseStep.PRECOMBAT_MAIN, playerA, "Pine Walker using Morph");
 
         setStrictChooseMode(true);
         setStopAt(1, PhaseStep.BEGIN_COMBAT);

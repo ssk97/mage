@@ -124,7 +124,7 @@ public class CantCastTest extends CardTestPlayerBase {
         addCard(Zone.HAND, playerA, "Pine Walker");
         addCard(Zone.BATTLEFIELD, playerA, "Forest", 3);
 
-        castSpell(1, PhaseStep.PRECOMBAT_MAIN, playerA, "Pine Walker with Morph");
+        castSpell(1, PhaseStep.PRECOMBAT_MAIN, playerA, "Pine Walker using Morph");
 
         setStopAt(1, PhaseStep.BEGIN_COMBAT);
 

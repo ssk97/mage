@@ -20,6 +20,13 @@ public class MorphSpellsCostReductionControllerEffect extends SpellsCostReductio
         super(filter, amount);
         filter.add(FaceDownCastablePredicate.instance);
     }
+    protected MorphSpellsCostReductionControllerEffect(final MorphSpellsCostReductionControllerEffect effect) {
+        super(effect);
+    }
+    @Override
+    public MorphSpellsCostReductionControllerEffect copy() {
+        return new MorphSpellsCostReductionControllerEffect(this);
+    }
 
     @Override
     public boolean applies(Ability abilityToModify, Ability source, Game game) {

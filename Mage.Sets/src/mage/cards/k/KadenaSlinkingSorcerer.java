@@ -16,7 +16,6 @@ import mage.filter.FilterCard;
 import mage.filter.FilterPermanent;
 import mage.filter.common.FilterControlledCreaturePermanent;
 import mage.filter.predicate.Predicate;
-import mage.filter.predicate.card.FaceDownCastablePredicate;
 import mage.filter.predicate.card.FaceDownPredicate;
 import mage.game.Game;
 import mage.game.events.GameEvent;
@@ -78,8 +77,7 @@ enum KadenaSlinkingSorcererPredicate implements Predicate<Card> {
     public boolean apply(Card input, Game game) {
         KadenaSlinkingSorcererWatcher watcher = game.getState().getWatcher(KadenaSlinkingSorcererWatcher.class);
         if (watcher != null) {
-            return FaceDownCastablePredicate.instance.apply(input, game)
-                    && !watcher.castFaceDownThisTurn(input.getOwnerId());
+            return !watcher.castFaceDownThisTurn(input.getOwnerId());
         }
         return false;
     }
