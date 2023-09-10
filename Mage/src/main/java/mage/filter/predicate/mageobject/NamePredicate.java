@@ -1,6 +1,7 @@
 package mage.filter.predicate.mageobject;
 
 import mage.MageObject;
+import mage.abilities.keyword.MorphAbility;
 import mage.cards.CardWithHalves;
 import mage.cards.SplitCard;
 import mage.constants.SpellAbilityType;
@@ -54,7 +55,7 @@ public class NamePredicate implements Predicate<MageObject> {
             return CardUtil.haveSameNames(name, card.getLeftHalfCard().getName(), this.ignoreMtgRuleForEmptyNames) ||
                     CardUtil.haveSameNames(name, card.getRightHalfCard().getName(), this.ignoreMtgRuleForEmptyNames) ||
                     CardUtil.haveSameNames(name, card.getName(), this.ignoreMtgRuleForEmptyNames);
-        } else if (input instanceof Spell && ((Spell) input).isFaceDown(game)) {
+        } else if ((input instanceof Spell && ((Spell) input).isFaceDown(game)) || input instanceof MorphAbility) {
             // face down spells don't have names, so it's not equal, see https://github.com/magefree/mage/issues/6569
             return false;
         } else {

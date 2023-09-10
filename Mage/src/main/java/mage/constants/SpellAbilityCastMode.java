@@ -4,7 +4,6 @@ import mage.abilities.keyword.BestowAbility;
 import mage.abilities.keyword.MorphAbility;
 import mage.cards.Card;
 import mage.game.Game;
-import mage.game.permanent.token.EmptyToken;
 
 /**
  * @author LevelX2

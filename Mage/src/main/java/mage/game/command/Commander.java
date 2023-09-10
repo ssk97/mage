@@ -53,12 +53,12 @@ public class Commander extends CommandObjectImpl {
                     case MODAL_LEFT:
                     case MODAL_RIGHT:
                     case ADVENTURE_SPELL:
+                    case FACE_DOWN_CREATURE:
                         // can be used from command zone
                         if (canUseAbilityFromCommandZone(spellAbility)) {
                             abilities.add(spellAbility.copyWithZone(Zone.COMMAND));
                         }
                         break;
-                    case FACE_DOWN_CREATURE: // dynamic added spell for alternative cost like cast as face down
                     case SPLICE: // only from hand
                     case SPLIT_AFTERMATH: // only from graveyard
                         // can't use from command zone
