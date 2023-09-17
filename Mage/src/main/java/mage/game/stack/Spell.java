@@ -534,8 +534,7 @@ public class Spell extends StackObjectImpl implements Card {
 
     @Override
     public List<CardType> getCardType(Game game) {
-        Card modified = getCardCharacteristics(game);
-        return modified.getCardType(game);
+        return game.getState().getMageObjectAttribute(id).getCardType();
     }
 
     @Override
@@ -545,14 +544,12 @@ public class Spell extends StackObjectImpl implements Card {
 
     @Override
     public SubTypes getSubtype(Game game) {
-        Card modified = getCardCharacteristics(game);
-        return modified.getSubtype(game);
+        return game.getState().getMageObjectAttribute(id).getSubtype();
     }
 
     @Override
     public boolean hasSubtype(SubType subtype, Game game) {
-        Card modified = getCardCharacteristics(game);
-        return modified.hasSubtype(subtype, game);
+        return game.getState().getMageObjectAttribute(id).getSubtype().contains(subtype);
     }
 
     @Override
