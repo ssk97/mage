@@ -78,10 +78,12 @@ public class Spell extends StackObjectImpl implements Card {
         }
         if (ability.getSpellAbilityCastMode() == SpellAbilityCastMode.MORPH){
             this.faceDown = true;
+            this.color = ObjectColor.COLORLESS;
+        } else {
+            this.color = affectedCard.getColor(null).copy();
         }
 
         this.card = affectedCard;
-        this.color = affectedCard.getColor(null).copy();
         this.frameColor = affectedCard.getFrameColor(null).copy();
         this.frameStyle = affectedCard.getFrameStyle();
         this.startingLoyalty = affectedCard.getStartingLoyalty();

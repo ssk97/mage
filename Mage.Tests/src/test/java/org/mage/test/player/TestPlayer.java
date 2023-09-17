@@ -606,7 +606,7 @@ public class TestPlayer implements Player {
                             if (computerPlayer.activateAbility(newAbility, game)) {
                                 actions.remove(action);
                                 groupsForTargetHandling = null;
-                                foundNoAction = 0; // Reset enless loop check because of no action
+                                foundNoAction = 0; // Reset endless loop check because of no action
                                 return true;
                             } else {
                                 computerPlayer.restoreState(bookmark, ability.getRule(), game);
