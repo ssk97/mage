@@ -528,9 +528,13 @@ public class Spell extends StackObjectImpl implements Card {
         return card.getRarity();
     }
 
+    public Card getCardCharacteristics(Game game){
+        return this.getSpellAbility().getSpellAbilityCastMode().getTypeModifiedCardObjectCopy(card, game);
+    }
+
     @Override
     public List<CardType> getCardType(Game game) {
-        Card modified = this.getSpellAbility().getSpellAbilityCastMode().getTypeModifiedCardObjectCopy(card, game);
+        Card modified = getCardCharacteristics(game);
         return modified.getCardType(game);
     }
 
@@ -541,13 +545,13 @@ public class Spell extends StackObjectImpl implements Card {
 
     @Override
     public SubTypes getSubtype(Game game) {
-        Card modified = this.getSpellAbility().getSpellAbilityCastMode().getTypeModifiedCardObjectCopy(card, game);
+        Card modified = getCardCharacteristics(game);
         return modified.getSubtype(game);
     }
 
     @Override
     public boolean hasSubtype(SubType subtype, Game game) {
-        Card modified = this.getSpellAbility().getSpellAbilityCastMode().getTypeModifiedCardObjectCopy(card, game);
+        Card modified = getCardCharacteristics(game);
         return modified.hasSubtype(subtype, game);
     }
 

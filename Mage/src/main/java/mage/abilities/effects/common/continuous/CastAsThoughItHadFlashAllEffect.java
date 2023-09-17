@@ -10,6 +10,7 @@ import mage.constants.Duration;
 import mage.constants.Outcome;
 import mage.filter.FilterCard;
 import mage.game.Game;
+import mage.game.stack.Spell;
 
 import java.util.UUID;
 
@@ -52,9 +53,12 @@ public class CastAsThoughItHadFlashAllEffect extends AsThoughEffectImpl {
     @Override
     public boolean applies(UUID affectedSpellId, Ability source, UUID affectedControllerId, Game game) {
         if (anyPlayer || source.isControlledBy(affectedControllerId)) {
-            Card card = game.getCard(affectedSpellId);
-            if (card != null) {
-                return filter.match(card, affectedControllerId, source, game);
+            Spell spell = game.getSpell(affectedSpellId);
+            if (spell != null) {
+                Card card = spell.getCardCharacteristics(game);
+                if (card != null) {
+                    return filter.match(card, affectedControllerId, source, game);
+                }
             }
         }
         return false;
