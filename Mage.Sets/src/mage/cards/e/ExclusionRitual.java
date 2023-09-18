@@ -1,6 +1,7 @@
 package mage.cards.e;
 
 import mage.abilities.Ability;
+import mage.abilities.SpellAbility;
 import mage.abilities.common.EntersBattlefieldTriggeredAbility;
 import mage.abilities.common.SimpleStaticAbility;
 import mage.abilities.effects.ContinuousRuleModifyingEffectImpl;
@@ -18,6 +19,7 @@ import mage.players.Player;
 import mage.target.TargetPermanent;
 import mage.util.CardUtil;
 
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -100,7 +102,9 @@ class ExclusionRitualReplacementEffect extends ContinuousRuleModifyingEffectImpl
     @Override
     public boolean applies(GameEvent event, Ability source, Game game) {
         Permanent sourcePermanent = game.getPermanent(source.getSourceId());
-        Card card = game.getCard(event.getSourceId());
+        Optional<Ability> maybeSpellAbility = game.getAbility(event.getTargetId(),event.getSourceId());
+        if (!maybeSpellAbility.isPresent()) {return false;}
+        Card card = ((SpellAbility) maybeSpellAbility.get()).getCharacteristics(game);
         if (sourcePermanent != null && card != null) {
             if (!sourcePermanent.getImprinted().isEmpty()) {
                 Card imprintedCard = game.getCard(sourcePermanent.getImprinted().get(0));

@@ -1,7 +1,7 @@
 package mage.cards.c;
 
-import java.util.UUID;
 import mage.abilities.Ability;
+import mage.abilities.SpellAbility;
 import mage.abilities.common.SimpleStaticAbility;
 import mage.abilities.effects.ContinuousRuleModifyingEffectImpl;
 import mage.cards.Card;
@@ -18,6 +18,9 @@ import mage.game.events.GameEvent;
 import mage.game.permanent.Permanent;
 import mage.game.stack.Spell;
 import mage.util.CardUtil;
+
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  *
@@ -70,7 +73,9 @@ class CorneredMarketReplacementEffect extends ContinuousRuleModifyingEffectImpl 
 
     @Override
     public boolean applies(GameEvent event, Ability source, Game game) {
-        Card card = game.getCard(event.getSourceId());
+        Optional<Ability> maybeSpellAbility = game.getAbility(event.getTargetId(),event.getSourceId());
+        if (!maybeSpellAbility.isPresent()) {return false;}
+        Card card = ((SpellAbility) maybeSpellAbility.get()).getCharacteristics(game);
         if (card != null) {
             Spell spell = game.getState().getStack().getSpell(event.getSourceId());
             // Face Down cast spell (Morph creature) has no name

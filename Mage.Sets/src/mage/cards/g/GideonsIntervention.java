@@ -2,12 +2,14 @@ package mage.cards.g;
 
 import mage.MageObject;
 import mage.abilities.Ability;
+import mage.abilities.SpellAbility;
 import mage.abilities.common.AsEntersBattlefieldAbility;
 import mage.abilities.common.SimpleStaticAbility;
 import mage.abilities.effects.ContinuousRuleModifyingEffectImpl;
 import mage.abilities.effects.Effect;
 import mage.abilities.effects.PreventionEffectImpl;
 import mage.abilities.effects.common.ChooseACardNameEffect;
+import mage.cards.Card;
 import mage.cards.CardImpl;
 import mage.cards.CardSetInfo;
 import mage.constants.CardType;
@@ -23,6 +25,7 @@ import mage.game.events.PreventedDamageEvent;
 import mage.game.permanent.Permanent;
 import mage.util.CardUtil;
 
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -90,8 +93,10 @@ class GideonsInterventionCantCastEffect extends ContinuousRuleModifyingEffectImp
     public boolean applies(GameEvent event, Ability source, Game game) {
         String cardName = (String) game.getState().getValue(source.getSourceId().toString() + ChooseACardNameEffect.INFO_KEY);
         if (game.getOpponents(source.getControllerId()).contains(event.getPlayerId())) {
-            MageObject object = game.getObject(event.getSourceId());
-            return object != null && object.getName().equals(cardName);
+            Optional<Ability> maybeSpellAbility = game.getAbility(event.getTargetId(),event.getSourceId());
+            if (!maybeSpellAbility.isPresent()) {return false;}
+            Card card = ((SpellAbility) maybeSpellAbility.get()).getCharacteristics(game);
+            return card != null && CardUtil.haveSameNames(card, cardName, game);
         }
         return false;
     }

@@ -1,10 +1,10 @@
 
 package mage.cards.a;
 
-import java.util.UUID;
 import mage.MageInt;
 import mage.MageObject;
 import mage.abilities.Ability;
+import mage.abilities.SpellAbility;
 import mage.abilities.common.SimpleStaticAbility;
 import mage.abilities.effects.ContinuousRuleModifyingEffectImpl;
 import mage.abilities.effects.EntersBattlefieldEffect;
@@ -15,12 +15,14 @@ import mage.constants.*;
 import mage.filter.common.FilterNonlandCard;
 import mage.game.Game;
 import mage.game.events.GameEvent;
-import mage.game.events.GameEvent.EventType;
 import mage.game.permanent.Permanent;
 import mage.players.Player;
 import mage.target.TargetCard;
 import mage.util.CardUtil;
 import mage.util.GameLog;
+
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  *
@@ -153,10 +155,9 @@ class AlhammarretHighArbiterCantCastEffect extends ContinuousRuleModifyingEffect
     @Override
     public boolean applies(GameEvent event, Ability source, Game game) {
         if (game.getOpponents(source.getControllerId()).contains(event.getPlayerId())) {
-            MageObject object = game.getObject(event.getSourceId());
-            if (object != null && object.getName().equals(cardName)) {
-                return true;
-            }
+            Optional<Ability> maybeSpellAbility = game.getAbility(event.getTargetId(),event.getSourceId());
+            return maybeSpellAbility.filter(ability ->
+                    CardUtil.haveSameNames(((SpellAbility) ability).getCharacteristics(game), cardName, game)).isPresent();
         }
         return false;
     }

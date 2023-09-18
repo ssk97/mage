@@ -3,6 +3,7 @@ package mage.cards.m;
 import mage.MageInt;
 import mage.MageObject;
 import mage.abilities.Ability;
+import mage.abilities.SpellAbility;
 import mage.abilities.common.AsEntersBattlefieldAbility;
 import mage.abilities.common.SimpleStaticAbility;
 import mage.abilities.effects.ContinuousRuleModifyingEffectImpl;
@@ -12,9 +13,9 @@ import mage.cards.CardSetInfo;
 import mage.constants.*;
 import mage.game.Game;
 import mage.game.events.GameEvent;
-import mage.game.events.GameEvent.EventType;
 import mage.util.CardUtil;
 
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -84,9 +85,9 @@ class MeddlingMageReplacementEffect extends ContinuousRuleModifyingEffectImpl {
 
     @Override
     public boolean applies(GameEvent event, Ability source, Game game) {
-        MageObject object = game.getObject(event.getSourceId());
+        Optional<Ability> maybeSpellAbility = game.getAbility(event.getTargetId(),event.getSourceId());
         String cardName = (String) game.getState().getValue(source.getSourceId().toString() + ChooseACardNameEffect.INFO_KEY);
-        return object != null
-                && CardUtil.haveSameNames(object, cardName, game);
+        return maybeSpellAbility.filter(ability ->
+                CardUtil.haveSameNames(((SpellAbility) ability).getCharacteristics(game), cardName, game)).isPresent();
     }
 }

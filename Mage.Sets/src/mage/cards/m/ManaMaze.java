@@ -1,24 +1,22 @@
 
 package mage.cards.m;
 
-import java.util.UUID;
 import mage.MageObject;
 import mage.abilities.Ability;
+import mage.abilities.SpellAbility;
 import mage.abilities.common.SimpleStaticAbility;
 import mage.abilities.effects.ContinuousRuleModifyingEffectImpl;
 import mage.cards.Card;
 import mage.cards.CardImpl;
 import mage.cards.CardSetInfo;
-import mage.constants.CardType;
-import mage.constants.Duration;
-import mage.constants.Outcome;
-import mage.constants.WatcherScope;
-import mage.constants.Zone;
+import mage.constants.*;
 import mage.game.Game;
 import mage.game.events.GameEvent;
-import mage.game.events.GameEvent.EventType;
 import mage.game.stack.Spell;
 import mage.watchers.Watcher;
+
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  *
@@ -61,7 +59,9 @@ class ManaMazeEffect extends ContinuousRuleModifyingEffectImpl {
 
     @Override
     public boolean applies(GameEvent event, Ability source, Game game) {
-        Card card = game.getCard(event.getSourceId());
+        Optional<Ability> maybeSpellAbility = game.getAbility(event.getTargetId(),event.getSourceId());
+        if (!maybeSpellAbility.isPresent()) {return false;}
+        Card card = ((SpellAbility) maybeSpellAbility.get()).getCharacteristics(game);
         if (card != null) {
             LastSpellCastWatcher watcher = game.getState().getWatcher(LastSpellCastWatcher.class);
             if (watcher != null && watcher.getLastSpellCast() != null) {
