@@ -116,6 +116,10 @@ public class MorphAbility extends SpellAbility {
     }
 
     @Override
+    public String getCardName() {
+        return "";
+    }
+    @Override
     public String getRule() {
         boolean isMana = morphCosts.get(0) instanceof ManaCost;
         String name = megamorph ? ABILITY_KEYWORD_MEGA : ABILITY_KEYWORD;

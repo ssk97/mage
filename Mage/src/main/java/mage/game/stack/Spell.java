@@ -534,7 +534,18 @@ public class Spell extends StackObjectImpl implements Card {
 
     @Override
     public List<CardType> getCardType(Game game) {
-        return card.getCardType();
+        if (faceDown) {
+            List<CardType> cardTypes = new ArrayList<>();
+            cardTypes.add(CardType.CREATURE);
+            return cardTypes;
+        }
+        if (SpellAbilityCastMode.BESTOW.equals(this.getSpellAbility().getSpellAbilityCastMode())) {
+            List<CardType> cardTypes = new ArrayList<>();
+            cardTypes.addAll(card.getCardType(game));
+            cardTypes.remove(CardType.CREATURE);
+            return cardTypes;
+        }
+        return card.getCardType(game);
     }
 
     @Override
@@ -544,11 +555,27 @@ public class Spell extends StackObjectImpl implements Card {
 
     @Override
     public SubTypes getSubtype(Game game) {
-        return card.getSubtype();
+        if (SpellAbilityCastMode.BESTOW.equals(this.getSpellAbility().getSpellAbilityCastMode())) {
+            SubTypes subtypes = card.getSubtype(game);
+            if (!subtypes.contains(SubType.AURA)) { // do it only once
+                subtypes.add(SubType.AURA);
+            }
+            return subtypes;
+        }
+        return card.getSubtype(game);
     }
 
     @Override
     public boolean hasSubtype(SubType subtype, Game game) {
+        if (SpellAbilityCastMode.BESTOW.equals(this.getSpellAbility().getSpellAbilityCastMode())) { // workaround for Bestow (don't like it)
+            SubTypes subtypes = card.getSubtype(game);
+            if (!subtypes.contains(SubType.AURA)) { // do it only once
+                subtypes.add(SubType.AURA);
+            }
+            if (subtypes.contains(subtype)) {
+                return true;
+            }
+        }
         return card.hasSubtype(subtype, game);
     }
 

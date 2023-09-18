@@ -278,18 +278,6 @@ public abstract class AbilityImpl implements Ability {
             game.getContinuousEffects().applySpliceEffects(this, game);
         }
 
-        // 20130201 - 601.2b
-        // If the spell has alternative or additional costs that will be paid as it's being cast such
-        // as buyback, kicker, or convoke costs (see rules 117.8 and 117.9), the player announces his
-        // or her intentions to pay any or all of those costs (see rule 601.2e).
-        // A player can't apply two alternative methods of casting or two alternative costs to a single spell.
-        if (isMainPartAbility && !activateAlternateOrAdditionalCosts(sourceObject, noMana, controller, game)) {
-            if (getAbilityType() == AbilityType.SPELL
-                    && ((SpellAbility) this).getSpellAbilityType() == SpellAbilityType.FACE_DOWN_CREATURE) {
-                return false;
-            }
-        }
-
         // 117.6. Some mana costs contain no mana symbols. This represents an unpayable cost. An ability can
         // also have an unpayable cost if its cost is based on the mana cost of an object with no mana cost.
         // Attempting to cast a spell or activate an ability that has an unpayable cost is a legal action.
