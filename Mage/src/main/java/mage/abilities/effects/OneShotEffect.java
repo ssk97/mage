@@ -17,9 +17,7 @@ public abstract class OneShotEffect extends EffectImpl {
     @Override
     public final void initNewTargetPointer() {
         // one short effects don't use init logic
-        if (getTargetPointer() != null) {
-            getTargetPointer().setInitialized();
-        }
+        this.getTargetPointer().setInitialized();
     }
 
     protected OneShotEffect(final OneShotEffect effect) {

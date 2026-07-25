@@ -64,7 +64,6 @@ public class BoostGenericEffect extends ContinuousEffectImpl {
     @Override
     public boolean apply(Game game, Ability source) {
         int affectedTargets = 0;
-        System.out.println("type "+getTargetPointer().getClass().getName());
         for (UUID permanentId : getTargetPointer().getTargets(game, source)) {
             Permanent target = game.getPermanent(permanentId);
             if (target != null && target.isCreature(game)) {
