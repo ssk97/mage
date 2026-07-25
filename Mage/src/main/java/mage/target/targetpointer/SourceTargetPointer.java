@@ -61,6 +61,7 @@ public class SourceTargetPointer extends TargetPointerImpl {
     @Override
     public List<UUID> getTargets(Game game, Ability source) {
         Permanent permanent = (mor == null) ? game.getPermanent(source.getSourceId()) : mor.getPermanent(game);
+        System.out.println("getTargets "+ (mor == null) + " finds " + permanent);
         if (permanent == null) {
             return Collections.emptyList();
         }
