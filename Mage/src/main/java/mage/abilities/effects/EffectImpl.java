@@ -4,7 +4,6 @@ import mage.abilities.MageSingleton;
 import mage.abilities.Mode;
 import mage.constants.EffectType;
 import mage.constants.Outcome;
-import mage.target.targetpointer.FirstTargetPointer;
 import mage.target.targetpointer.TargetPointer;
 
 import java.util.HashMap;
@@ -22,7 +21,7 @@ public abstract class EffectImpl implements Effect {
 
     // read related docs about static and dynamic targets in ContinuousEffectImpl.affectedObjectsSet
     // warning, do not change it directly, use setTargetPointer instead
-    private TargetPointer targetPointer = new FirstTargetPointer();
+    private TargetPointer targetPointer = null;
 
     protected String staticText = "";
     protected Map<String, Object> values;
@@ -40,7 +39,9 @@ public abstract class EffectImpl implements Effect {
         this.outcome = effect.outcome;
         this.staticText = effect.staticText;
         this.effectType = effect.effectType;
-        this.targetPointer = effect.targetPointer.copy();
+        if (effect.targetPointer != null) {
+            this.targetPointer = effect.targetPointer.copy();
+        }
         this.concatPrefix = effect.concatPrefix;
         if (effect.values != null) {
             values = new HashMap<>();
@@ -90,10 +91,9 @@ public abstract class EffectImpl implements Effect {
     @Override
     public Effect setTargetPointer(TargetPointer targetPointer) {
         if (targetPointer == null) {
-            // first target pointer is default
-            throw new IllegalArgumentException("Wrong code usage: target pointer can't be set to null: " + this);
+            return this;
         }
-        targetPointer.setTargetDescription(this.targetPointer.getTargetDescription()); // copies the null if not set
+        //targetPointer.setTargetDescription(this.targetPointer.getTargetDescription()); // copies the null if not set
         this.targetPointer = targetPointer;
         initNewTargetPointer();
         return this;

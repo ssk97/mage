@@ -81,7 +81,9 @@ public class ConditionalContinuousEffect extends ContinuousEffectImpl {
         } else {
             condition = baseCondition;
         }
-        effect.setTargetPointer(this.getTargetPointer().copy());
+        if (this.getTargetPointer() != null) {
+            effect.setTargetPointer(this.getTargetPointer().copy());
+        }
         effect.init(source, game);
         if (otherwiseEffect != null) {
             otherwiseEffect.setTargetPointer(this.getTargetPointer().copy());

@@ -45,6 +45,7 @@ import mage.target.common.TargetCardInLibrary;
 import mage.target.common.TargetControlledPermanent;
 import mage.target.targetadjustment.GenericTargetAdjuster;
 import mage.target.targetadjustment.TargetAdjuster;
+import mage.target.targetpointer.FirstTargetPointer;
 import mage.util.CardUtil;
 import mage.util.GameLog;
 import mage.util.ThreadLocalStringBuilder;
@@ -1205,6 +1206,11 @@ public abstract class AbilityImpl implements Ability {
 
         if (target != null) {
             getTargets().add(target);
+        }
+        for (Effect effect : getEffects()){
+            if (effect.getTargetPointer() == null) {
+                effect.setTargetPointer(new FirstTargetPointer());
+            }
         }
     }
 

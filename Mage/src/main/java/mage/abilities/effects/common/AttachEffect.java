@@ -47,6 +47,9 @@ public class AttachEffect extends OneShotEffect {
                 && zcc != CardUtil.getActualSourceObjectZoneChangeCounter(game, source) + 1) {
             return false;
         }
+        if (getTargetPointer() == null) {
+            return false;
+        }
         UUID targetId = getTargetPointer().getFirst(game, source);
         Permanent permanent = game.getPermanent(targetId);
         if (permanent != null) {

@@ -167,7 +167,9 @@ public abstract class ContinuousEffectImpl extends EffectImpl implements Continu
 
     @Override
     public void init(Ability source, Game game, UUID activePlayerId) {
-        getTargetPointer().init(game, source);
+        if (getTargetPointer() != null) {
+            getTargetPointer().init(game, source);
+        }
         if (this.affectedObjectsSet == null) {
             initAffectedObjectsSet(source);
         }
