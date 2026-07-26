@@ -51,24 +51,14 @@ public class FilterAllPermanentsTargetPointer extends TargetPointerImpl {
      */
     @Override
     public List<UUID> getTargets(Game game, Ability source) {
-        for (Permanent p : game.getBattlefield().getActivePermanents(source.getControllerId(), game)){
-            System.out.println("testable "+p.getIdName());
-        }
         if (fixTargets){
             if (affectedObjectList == null) {
                 affectedObjectList = game.getBattlefield().getActivePermanents(filter, source.getControllerId(), source, game)
                         .stream().map(x -> new MageObjectReference(x, game)).collect(Collectors.toList());
-                System.out.println("source "+source.getSourceObject(game).getIdName());
-                for (Permanent p : game.getBattlefield().getActivePermanents(filter, source.getControllerId(), source, game)){
-                    System.out.println("found "+p.getIdName());
-                }
             }
-            System.out.println("size = "+affectedObjectList.size()+"/"+affectedObjectList.stream().filter(x -> x.zoneCounterIsCurrent(game)).count()
-                    +" from "+filter.getMessage());
             return affectedObjectList.stream().filter(x -> x.zoneCounterIsCurrent(game))
                     .map(MageObjectReference::getSourceId).collect(Collectors.toList());
         } else {
-            System.out.println("count = "+game.getBattlefield().getActivePermanents(filter, source.getControllerId(), source, game).size()+" from "+filter.getMessage());
             return game.getBattlefield().getActivePermanents(filter, source.getControllerId(), source, game)
                 .stream().map(Permanent::getId).collect(Collectors.toList());
         }
