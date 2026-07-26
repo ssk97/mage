@@ -1,9 +1,7 @@
 package mage.target.targetpointer;
 
-import mage.MageObject;
 import mage.MageObjectReference;
 import mage.abilities.Ability;
-import mage.constants.Zone;
 import mage.game.Game;
 import mage.game.permanent.Permanent;
 
@@ -17,8 +15,7 @@ public class SourceTargetPointer extends TargetPointerImpl {
     private final boolean fixTarget;
 
     /**
-     * Target pointer that always "targets" whatever the source of the ability is  to.
-     * WARNING: Do NOT use with MageSingleton abilities
+     * Target pointer that always "targets" whatever the source of the ability is to.
      */
     public SourceTargetPointer() {
         this(false);
@@ -26,12 +23,12 @@ public class SourceTargetPointer extends TargetPointerImpl {
     public SourceTargetPointer(boolean fixTarget) {
         super();
         this.fixTarget = fixTarget;
-        setTargetDescription(" creature");
+        this.targetDescription = "{this}";
     }
     public SourceTargetPointer(final SourceTargetPointer other) {
         super(other);
-        fixTarget = other.fixTarget;
-        mor = other.mor;
+        this.fixTarget = other.fixTarget;
+        this.mor = other.mor;
     }
 
 
@@ -40,13 +37,7 @@ public class SourceTargetPointer extends TargetPointerImpl {
         if (isInitialized()) {
             return;
         }
-        if (fixTarget) {
-            Permanent permanent = game.getPermanent(source.getSourceId());
-            if (permanent != null) {
-                mor = new MageObjectReference(permanent, game);
-                setInitialized();
-            }
-        }
+        setInitialized();
     }
 
     /**
@@ -60,7 +51,13 @@ public class SourceTargetPointer extends TargetPointerImpl {
      */
     @Override
     public List<UUID> getTargets(Game game, Ability source) {
-        Permanent permanent = (mor == null) ? game.getPermanent(source.getSourceId()) : mor.getPermanent(game);
+        if (fixTarget && mor == null) {
+            Permanent permanent = source.getSourcePermanentIfItStillExists(game);
+            if (permanent != null) {
+                mor = new MageObjectReference(permanent, game);
+            }
+        }
+        Permanent permanent = (mor == null) ? source.getSourcePermanentIfItStillExists(game) : mor.getPermanent(game);
         if (permanent == null) {
             return Collections.emptyList();
         }
@@ -71,11 +68,7 @@ public class SourceTargetPointer extends TargetPointerImpl {
 
     @Override
     public UUID getFirst(Game game, Ability source) {
-        Permanent permanent = (mor == null) ? game.getPermanent(source.getSourceId()) : mor.getPermanent(game);
-        if (permanent == null) {
-            return null;
-        }
-        return permanent.getId();
+        throw new IllegalStateException("Attempted to get first target on SourceTargetPointer (bad Effect usage)");
     }
 
     @Override
@@ -85,15 +78,10 @@ public class SourceTargetPointer extends TargetPointerImpl {
 
     @Override
     public Permanent getFirstTargetPermanentOrLKI(Game game, Ability source) {
-        init(game, source);
-        Permanent permanent = (mor == null) ? game.getPermanent(source.getSourceId()) : mor.getPermanent(game);
-        if  (permanent != null) {
-            return permanent;
-        }
-        MageObject mageObject = game.getLastKnownInformation(source.getSourceId(), Zone.BATTLEFIELD, source.getStackMomentSourceZCC());
-        if (mageObject instanceof Permanent) {
-            return (Permanent) mageObject;
-        }
-        return null;
+        throw new IllegalStateException("Attempted to get first target on SourceTargetPointer (bad Effect usage)");
+    }
+    @Override
+    public boolean isSpecial() {
+        return true;
     }
 }

@@ -93,7 +93,13 @@ public abstract class EffectImpl implements Effect {
             // first target pointer is default
             throw new IllegalArgumentException("Wrong code usage: target pointer can't be set to null: " + this);
         }
-        targetPointer.setTargetDescription(this.targetPointer.getTargetDescription()); // copies the null if not set
+        //Special target pointers can't be overwritten by non-special target pointers
+        if (this.targetPointer.isSpecial() && !targetPointer.isSpecial()) {
+            return this;
+        }
+        if (this.targetPointer.getTargetDescription() != null) {
+            targetPointer.setTargetDescription(this.targetPointer.getTargetDescription());
+        }
         this.targetPointer = targetPointer;
         initNewTargetPointer();
         return this;

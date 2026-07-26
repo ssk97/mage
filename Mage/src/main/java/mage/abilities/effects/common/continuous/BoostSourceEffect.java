@@ -23,8 +23,10 @@ public class BoostSourceEffect extends BoostGenericEffect {
 
     public BoostSourceEffect(DynamicValue power, DynamicValue toughness, Duration duration, String description) {
         super(power, toughness, duration);
-        TargetPointer targetPointer = new SourceTargetPointer(duration == Duration.EndOfTurn);
-        targetPointer.setTargetDescription(description);
+        TargetPointer targetPointer = new SourceTargetPointer(duration != Duration.WhileOnBattlefield);
+        if (description != null) {
+            targetPointer.setTargetDescription(description);
+        }
         this.setTargetPointer(targetPointer);
     }
 

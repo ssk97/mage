@@ -70,6 +70,12 @@ public interface TargetPointer extends Serializable, Copyable<TargetPointer> {
     }
 
     /**
+     * Special target pointers can't be overridden once set
+     * @return
+     */
+    default boolean isSpecial() {return false;}
+
+    /**
      * Store text to target pointer (useful to keep data for specific trigger, e.g. selected target name for rules)
      */
     TargetPointer withData(String key, String value);

@@ -1,9 +1,7 @@
 package mage.target.targetpointer;
 
-import mage.MageObject;
 import mage.MageObjectReference;
 import mage.abilities.Ability;
-import mage.constants.Zone;
 import mage.game.Game;
 import mage.game.permanent.Permanent;
 
@@ -18,20 +16,16 @@ public class SourceAttachedTargetPointer extends TargetPointerImpl {
 
     /**
      * Target pointer that always "targets" whatever the source of the ability is attached to.
-     * WARNING: Do NOT use with MageSingleton abilities
      */
-    public SourceAttachedTargetPointer() {
-        this(false);
-    }
-    public SourceAttachedTargetPointer(boolean fixTarget) {
+    public SourceAttachedTargetPointer(boolean fixTarget, String description) {
         super();
         this.fixTarget = fixTarget;
-        setTargetDescription("attached creature");
+        this.targetDescription = description;
     }
     public SourceAttachedTargetPointer(final SourceAttachedTargetPointer other) {
         super(other);
-        fixTarget = other.fixTarget;
-        mor = other.mor;
+        this.fixTarget = other.fixTarget;
+        this.mor = other.mor;
     }
 
 
@@ -40,13 +34,7 @@ public class SourceAttachedTargetPointer extends TargetPointerImpl {
         if (isInitialized()) {
             return;
         }
-        if (fixTarget) {
-            Permanent permanent = game.getPermanent(source.getSourceId());
-            if (permanent != null) {
-                mor = new MageObjectReference(permanent.getAttachedTo(), game);
-                setInitialized();
-            }
-        }
+        setInitialized();
     }
 
     /**
@@ -60,11 +48,22 @@ public class SourceAttachedTargetPointer extends TargetPointerImpl {
      */
     @Override
     public List<UUID> getTargets(Game game, Ability source) {
-        Permanent permanent = (mor == null) ? game.getPermanent(source.getSourceId()) : mor.getPermanent(game);
-        if (permanent == null) {
-            return Collections.emptyList();
+        if (fixTarget && mor == null) {
+            Permanent permanent = source.getSourcePermanentIfItStillExists(game);
+            if (permanent != null) {
+                mor = new MageObjectReference(permanent.getAttachedTo(), game);
+            }
         }
-        UUID attached = permanent.getAttachedTo();
+        UUID attached = null;
+        if (mor == null) {
+            Permanent permanent = source.getSourcePermanentIfItStillExists(game);
+            if (permanent == null) {
+                return Collections.emptyList();
+            }
+            attached = permanent.getAttachedTo();
+        } else if (mor.zoneCounterIsCurrent(game)) {
+            attached = mor.getSourceId();
+        }
         if (attached == null) {
             return Collections.emptyList();
         }
@@ -75,11 +74,7 @@ public class SourceAttachedTargetPointer extends TargetPointerImpl {
 
     @Override
     public UUID getFirst(Game game, Ability source) {
-        Permanent permanent = (mor == null) ? game.getPermanent(source.getSourceId()) : mor.getPermanent(game);
-        if (permanent == null) {
-            return null;
-        }
-        return permanent.getAttachedTo();
+        throw new IllegalStateException("Attempted to get first target on SourceAttachedTargetPointer (bad Effect usage)");
     }
 
     @Override
@@ -89,15 +84,10 @@ public class SourceAttachedTargetPointer extends TargetPointerImpl {
 
     @Override
     public Permanent getFirstTargetPermanentOrLKI(Game game, Ability source) {
-        init(game, source);
-        Permanent permanent = (mor == null) ? game.getPermanent(source.getSourceId()) : mor.getPermanent(game);
-        if  (permanent != null) {
-            return permanent;
-        }
-        MageObject mageObject = game.getLastKnownInformation(source.getSourceId(), Zone.BATTLEFIELD, source.getStackMomentSourceZCC());
-        if (mageObject instanceof Permanent) {
-            return (Permanent) mageObject;
-        }
-        return null;
+        throw new IllegalStateException("Attempted to get first target or LKI on SourceAttachedTargetPointer (bad Effect usage)");
+    }
+    @Override
+    public boolean isSpecial() {
+        return true;
     }
 }
