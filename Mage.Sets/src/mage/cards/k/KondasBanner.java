@@ -80,7 +80,6 @@ enum ShareColorEquippedPredicate implements ObjectSourcePlayerPredicate<MageObje
         if (attached == null) {
             return false;
         }
-        System.out.println("object "+input.getObject().getLogName()+" check color, from attach "+attached.getIdName());
         return input.getObject().getColor(game).shares(attached.getColor(game));
     }
 }
@@ -98,7 +97,6 @@ enum ShareTypeEquippedPredicate implements ObjectSourcePlayerPredicate<MageObjec
         if (attached == null) {
             return false;
         }
-        System.out.println("object "+input.getObject().getLogName()+" check type, from attach "+attached.getIdName());
         return input.getObject().shareCreatureTypes(game, attached);
     }
 }
