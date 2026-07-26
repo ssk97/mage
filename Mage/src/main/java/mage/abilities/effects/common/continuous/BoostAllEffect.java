@@ -5,6 +5,7 @@ import mage.abilities.dynamicvalue.common.StaticValue;
 import mage.constants.Duration;
 import mage.filter.FilterPermanent;
 import mage.filter.StaticFilters;
+import mage.filter.common.FilterCreaturePermanent;
 import mage.filter.predicate.mageobject.AnotherPredicate;
 import mage.target.targetpointer.FilterAllPermanentsTargetPointer;
 
@@ -35,6 +36,12 @@ public class BoostAllEffect extends BoostGenericEffect {
 
     public BoostAllEffect(DynamicValue power, DynamicValue toughness, Duration duration, FilterPermanent filter, boolean excludeSource) {
         this(power, toughness, duration, filter, excludeSource, null);
+    }
+
+    //Used for testing only
+    public BoostAllEffect(boolean forceFixTargets, int power, int toughness, Duration duration) {
+        super(power, toughness, duration);
+        this.setTargetPointer(new FilterAllPermanentsTargetPointer(new FilterCreaturePermanent(), forceFixTargets));
     }
 
     public BoostAllEffect(DynamicValue power, DynamicValue toughness, Duration duration, FilterPermanent filter, boolean excludeSource, String rule) {

@@ -73,7 +73,7 @@ public class PlayerLeavesGameTest extends CardTestMultiPlayerBaseWithRangeAll {
         // Player order: A -> D -> C -> B
         addCard(Zone.BATTLEFIELD, playerA, cardBear2, 1);
         addCard(Zone.BATTLEFIELD, playerD, cardBear2, 1);
-        addCustomCardWithAbility("effect", playerA, new SimpleStaticAbility(new BoostAllEffect(1, 1, duration)));
+        addCustomCardWithAbility("effect", playerA, new SimpleStaticAbility(new BoostAllEffect(false, 1, 1, duration)));
 
         // B must checks A for online status
 
@@ -132,7 +132,7 @@ public class PlayerLeavesGameTest extends CardTestMultiPlayerBaseWithRangeAll {
     @Test
     public void test_EndOfTurnMultiLeave() {
         // Player order: A -> D -> C -> B
-        addCustomCardWithAbility("boost", playerA, new SimpleStaticAbility(Zone.ALL, new BoostAllEffect(1, 1, Duration.EndOfTurn)));
+        addCustomCardWithAbility("boost", playerA, new SimpleStaticAbility(Zone.ALL, new BoostAllEffect(false, 1, 1, Duration.EndOfTurn)));
         addCard(Zone.BATTLEFIELD, playerA, cardBear2, 1);
         addCard(Zone.BATTLEFIELD, playerB, cardBear2, 1);
         addCard(Zone.BATTLEFIELD, playerC, cardBear2, 1);
@@ -154,7 +154,7 @@ public class PlayerLeavesGameTest extends CardTestMultiPlayerBaseWithRangeAll {
 
     private void prepareAndRunUntilYourTurnLeaveTest(Duration duration) {
         // Player order: A -> D -> C -> B
-        addCustomCardWithAbility("boost", playerA, new SimpleStaticAbility(Zone.ALL, new BoostAllEffect(1, 1, duration)));
+        addCustomCardWithAbility("boost", playerA, new SimpleStaticAbility(Zone.ALL, new BoostAllEffect(false, 1, 1, duration)));
         addCard(Zone.BATTLEFIELD, playerA, cardBear2, 1);
         addCard(Zone.BATTLEFIELD, playerB, cardBear2, 1);
         addCard(Zone.BATTLEFIELD, playerC, cardBear2, 1);

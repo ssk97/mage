@@ -18,7 +18,7 @@ public class EndOfTurnMultiOpponentsTest extends CardTestMultiPlayerBaseWithRang
     @Test
     public void test_EndOfTurnMulti() {
         // Player order: A -> D -> C -> B
-        addCustomCardWithAbility("boost1", playerA, new SimpleStaticAbility(Zone.ALL, new BoostAllEffect(1, 1, Duration.EndOfTurn)));
+        addCustomCardWithAbility("boost1", playerA, new SimpleStaticAbility(Zone.ALL, new BoostAllEffect(false, 1, 1, Duration.EndOfTurn)));
 
         EndOfTurnOneOpponentTest.prepareStepChecks(this, "Duration.EndOfTurn effect", 1, playerA, true, PhaseStep.END_TURN);
         EndOfTurnOneOpponentTest.prepareStepChecks(this, "Duration.EndOfTurn effect", 2, playerD, true, null);
@@ -63,7 +63,7 @@ public class EndOfTurnMultiOpponentsTest extends CardTestMultiPlayerBaseWithRang
     @Test
     public void test_UntilYourNextTurnMulti() {
         // Player order: A -> D -> C -> B
-        addCustomCardWithAbility("boost1", playerA, new SimpleStaticAbility(Zone.ALL, new BoostAllEffect(1, 1, Duration.UntilYourNextTurn)));
+        addCustomCardWithAbility("boost1", playerA, new SimpleStaticAbility(Zone.ALL, new BoostAllEffect(false, 1, 1, Duration.UntilYourNextTurn)));
 
         EndOfTurnOneOpponentTest.prepareStepChecks(this, "Duration.UntilYourNextTurn effect", 1, playerA, true, PhaseStep.END_TURN);
         EndOfTurnOneOpponentTest.prepareStepChecks(this, "Duration.UntilYourNextTurn effect", 2, playerD, true, PhaseStep.END_TURN);
@@ -108,7 +108,7 @@ public class EndOfTurnMultiOpponentsTest extends CardTestMultiPlayerBaseWithRang
     @Test
     public void test_UntilEndOfYourNextTurnMulti() {
         // Player order: A -> D -> C -> B
-        addCustomCardWithAbility("boost1", playerA, new SimpleStaticAbility(Zone.ALL, new BoostAllEffect(1, 1, Duration.UntilEndOfYourNextTurn)));
+        addCustomCardWithAbility("boost1", playerA, new SimpleStaticAbility(Zone.ALL, new BoostAllEffect(false, 1, 1, Duration.UntilEndOfYourNextTurn)));
 
         EndOfTurnOneOpponentTest.prepareStepChecks(this, "Duration.UntilEndOfYourNextTurn effect", 1, playerA, true, PhaseStep.END_TURN);
         EndOfTurnOneOpponentTest.prepareStepChecks(this, "Duration.UntilEndOfYourNextTurn effect", 2, playerD, true, PhaseStep.END_TURN);
@@ -157,7 +157,7 @@ public class EndOfTurnMultiOpponentsTest extends CardTestMultiPlayerBaseWithRang
     @Test
     public void test_UntilYourNextTurnMulti_Leaved() {
         // Player order: A -> D -> C -> B
-        addCustomCardWithAbility("boost1", playerA, new SimpleStaticAbility(Zone.ALL, new BoostAllEffect(1, 1, Duration.UntilYourNextTurn)));
+        addCustomCardWithAbility("boost1", playerA, new SimpleStaticAbility(Zone.ALL, new BoostAllEffect(false, 1, 1, Duration.UntilYourNextTurn)));
 
         EndOfTurnOneOpponentTest.prepareStepChecks(this, "Duration.UntilYourNextTurn effect", 1, playerA, true, PhaseStep.END_TURN);
         EndOfTurnOneOpponentTest.prepareStepChecks(this, "Duration.UntilYourNextTurn effect", 2, playerD, true, PhaseStep.END_TURN);
