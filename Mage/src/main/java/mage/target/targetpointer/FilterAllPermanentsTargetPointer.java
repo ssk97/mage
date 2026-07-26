@@ -1,27 +1,33 @@
 package mage.target.targetpointer;
 
+import mage.MageObjectReference;
 import mage.abilities.Ability;
 import mage.filter.FilterPermanent;
 import mage.game.Game;
 import mage.game.permanent.Permanent;
+import mage.target.Targets;
 
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class FilterAllPermanentsTargetPointer extends TargetPointerImpl {
-    private FilterPermanent filter;
+    private final FilterPermanent filter;
+    private final boolean fixTargets;
+    private List<MageObjectReference> affectedObjectList = null;
 
     /**
-     * Target pointer that always "targets" the source of the ability.
-     * WARNING: Do NOT use with MageSingleton abilities
+     * Target pointer that always "targets" all permanents that match the given filter
      */
-    public FilterAllPermanentsTargetPointer() {
+    public FilterAllPermanentsTargetPointer(FilterPermanent filter, boolean fixTargets) {
         super();
+        this.filter = filter;
+        this.fixTargets = fixTargets;
     }
     public FilterAllPermanentsTargetPointer(final FilterAllPermanentsTargetPointer other) {
         super(other);
-        filter = other.filter;
+        this.filter = other.filter;
+        this.fixTargets = other.fixTargets;
         setTargetDescription(filter.getMessage());
     }
 
@@ -45,13 +51,24 @@ public class FilterAllPermanentsTargetPointer extends TargetPointerImpl {
      */
     @Override
     public List<UUID> getTargets(Game game, Ability source) {
-        return game.getBattlefield().getAllActivePermanents(filter, source.getControllerId(), game)
+        if (fixTargets){
+            if (affectedObjectList == null) {
+                affectedObjectList = game.getBattlefield().getActivePermanents(filter, source.getControllerId(), source, game)
+                        .stream().map(x -> new MageObjectReference(x, game)).collect(Collectors.toList());
+            }
+            System.out.println("size = "+affectedObjectList.size()+" from "+filter.getMessage());
+            return affectedObjectList.stream().filter(x -> x.zoneCounterIsCurrent(game))
+                    .map(MageObjectReference::getSourceId).collect(Collectors.toList());
+        } else {
+            System.out.println("count = "+game.getBattlefield().getActivePermanents(filter, source.getControllerId(), source, game).size()+" from "+filter.getMessage());
+            return game.getBattlefield().getActivePermanents(filter, source.getControllerId(), source, game)
                 .stream().map(Permanent::getId).collect(Collectors.toList());
+        }
     }
 
     @Override
     public UUID getFirst(Game game, Ability source) {
-        throw new IllegalStateException("Attempted to get first target on FilterAllPermanentsTargetPointer");
+        throw new IllegalStateException("Attempted to get first target on FilterAllPermanentsTargetPointer (bad Effect usage)");
     }
 
     @Override
@@ -61,6 +78,16 @@ public class FilterAllPermanentsTargetPointer extends TargetPointerImpl {
 
     @Override
     public Permanent getFirstTargetPermanentOrLKI(Game game, Ability source) {
-        throw new IllegalStateException("Attempted to get first target (or LKI) on FilterAllPermanentsTargetPointer");
+        throw new IllegalStateException("Attempted to get first target (or LKI) on FilterAllPermanentsTargetPointer (bad Effect usage)");
+    }
+
+    @Override
+    public boolean isSpecial() {
+        return true;
+    }
+
+    @Override
+    public boolean isPlural(Targets targets) {
+        return true;
     }
 }
