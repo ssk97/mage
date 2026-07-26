@@ -6,7 +6,10 @@ import mage.abilities.Mode;
 import mage.abilities.common.LinkedEffectIdStaticAbility;
 import mage.abilities.effects.ContinuousEffectImpl;
 import mage.cards.Card;
-import mage.constants.*;
+import mage.constants.Duration;
+import mage.constants.Layer;
+import mage.constants.Outcome;
+import mage.constants.SubLayer;
 import mage.game.Game;
 import mage.game.permanent.Permanent;
 import mage.util.CardUtil;
@@ -18,11 +21,14 @@ import java.util.*;
  */
 public class GainAbilityTargetEffect extends ContinuousEffectImpl {
 
-    protected final Ability ability;
+    protected Ability ability;
 
     // shall a card gain the ability (otherwise a permanent)
     private final boolean useOnCard; // only one card per ability supported
     private boolean waitingCardPermanent = false; // wait the permanent from card's resolve (for inner usage only)
+
+    private boolean useQuotes = false;
+    protected String targetObjectName = null;
 
     public GainAbilityTargetEffect(Ability ability) {
         this(ability, Duration.EndOfTurn);
@@ -107,6 +113,7 @@ public class GainAbilityTargetEffect extends ContinuousEffectImpl {
                 if (permanent != null) {
                     this.waitingCardPermanent = false;
                     permanent.addAbility(ability, source.getSourceId(), game);
+                    afterGain(game, source, permanent, ability);
                     affectedTargets++;
                     continue;
                 }
@@ -123,6 +130,7 @@ public class GainAbilityTargetEffect extends ContinuousEffectImpl {
                         Permanent perm = game.getPermanent(mor.getSourceId());
                         if (perm != null) {
                             perm.addAbility(ability, source.getSourceId(), game);
+                            afterGain(game, source, perm, ability);
                             affectedTargets++;
                             newWaitingPermanents.add(new MageObjectReference(perm, game));
                             this.waitingCardPermanent = false;
@@ -154,6 +162,7 @@ public class GainAbilityTargetEffect extends ContinuousEffectImpl {
                 Permanent permanent = game.getPermanent(objectId);
                 if (permanent != null) {
                     permanent.addAbility(ability, source.getSourceId(), game);
+                    afterGain(game, source, permanent, ability);
                     affectedTargets++;
                     continue;
                 }
@@ -168,7 +177,17 @@ public class GainAbilityTargetEffect extends ContinuousEffectImpl {
         }
         return affectedTargets > 0;
     }
-
+    /**
+     * Calls after ability gain. Override it to apply additional data (example: transfer ability's settings from original to destination source)
+     *
+     * @param game
+     * @param source
+     * @param permanent
+     * @param addedAbility
+     */
+    public void afterGain(Game game, Ability source, Permanent permanent, Ability addedAbility) {
+        //
+    }
     /**
      * Copying the ability and providing ability is needed in a few situations,
      * The copy in order to have internal fields be proper to that ability in particular.
@@ -185,16 +204,35 @@ public class GainAbilityTargetEffect extends ContinuousEffectImpl {
         return abilityToCopy;
     }
 
+    public GainAbilityTargetEffect withQuotes(boolean useQuotes) {
+        this.useQuotes = useQuotes;
+        return this;
+    }
+
     @Override
     public String getText(Mode mode) {
         if (staticText != null && !staticText.isEmpty()) {
             return staticText;
         }
         StringBuilder sb = new StringBuilder(getTargetPointer().describeTargets(mode.getTargets(), "it"));
-        sb.append(getTargetPointer().isPlural(mode.getTargets()) ? " gain " : " gains ");
-        sb.append(CardUtil.stripReminderText(ability.getRule()));
+        if (duration == Duration.WhileOnBattlefield) {
+            sb.append(getTargetPointer().isPlural(mode.getTargets()) ? " has " : " have ");
+        } else {
+            sb.append(getTargetPointer().isPlural(mode.getTargets()) ? " gain " : " gains ");
+        }
+        if (useQuotes) {
+            sb.append('"');
+        }
+        if (targetObjectName == null) {
+            sb.append(CardUtil.stripReminderText(ability.getRule()));
+        } else {
+            sb.append(CardUtil.stripReminderText(ability.getRule("this " + targetObjectName)));
+        }
+        if (useQuotes) {
+            sb.append('"');
+        }
         if (!duration.toString().isEmpty()) {
-            sb.append(' ').append(duration.toString());
+            sb.append(' ').append(duration);
         }
         return sb.toString();
     }
