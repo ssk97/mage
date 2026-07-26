@@ -16,9 +16,6 @@ import mage.game.Game;
  */
 public class BoostAllOfChosenSubtypeEffect extends BoostAllEffect {
 
-
-    private SubType subtype = null;
-
     public BoostAllOfChosenSubtypeEffect(int power, int toughness, Duration duration, boolean excludeSource) {
         this(power, toughness, duration, new FilterCreaturePermanent("creatures of the chosen type"), excludeSource);
     }
@@ -33,7 +30,6 @@ public class BoostAllOfChosenSubtypeEffect extends BoostAllEffect {
 
     protected BoostAllOfChosenSubtypeEffect(final BoostAllOfChosenSubtypeEffect effect) {
         super(effect);
-        this.subtype = effect.subtype;
     }
 
     @Override
