@@ -7,12 +7,12 @@ import mage.abilities.common.SimpleStaticAbility;
 import mage.abilities.costs.mana.GenericManaCost;
 import mage.abilities.effects.common.continuous.BoostSourceEffect;
 import mage.abilities.effects.common.continuous.GainAbilityControlledEffect;
+import mage.abilities.effects.common.continuous.GainAbilityTargetEffect;
 import mage.cards.CardImpl;
 import mage.cards.CardSetInfo;
 import mage.constants.CardType;
 import mage.constants.Duration;
 import mage.constants.SubType;
-import mage.constants.Zone;
 import mage.filter.common.FilterControlledCreaturePermanent;
 
 import java.util.UUID;
@@ -41,9 +41,9 @@ public final class MudTrooper extends CardImpl {
                 new BoostSourceEffect(1, 1, Duration.EndOfTurn)
                         .setText("This creature gets +1/+1 until end of turn"),
                 new GenericManaCost(2));
+        GainAbilityTargetEffect gainAbilityTargetEffect = new GainAbilityControlledEffect(ability, Duration.WhileOnBattlefield, filter, false);
         this.addAbility(new SimpleStaticAbility(
-                new GainAbilityControlledEffect(ability, Duration.WhileOnBattlefield, filter, false)
-                        .withForceQuotes()
+                gainAbilityTargetEffect
         ));
     }
 

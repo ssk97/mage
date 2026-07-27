@@ -6,6 +6,7 @@ import mage.abilities.common.SimpleStaticAbility;
 import mage.abilities.costs.mana.GenericManaCost;
 import mage.abilities.effects.common.UntapSourceEffect;
 import mage.abilities.effects.common.continuous.GainAbilityControlledEffect;
+import mage.abilities.effects.common.continuous.GainAbilityTargetEffect;
 import mage.cards.CardImpl;
 import mage.cards.CardSetInfo;
 import mage.constants.CardType;
@@ -29,11 +30,11 @@ public final class ScuttlingSliver extends CardImpl {
         this.toughness = new MageInt(2);
 
         // Sliver creatures you control have "{2}: Untap this creature."
-        this.addAbility(new SimpleStaticAbility(new GainAbilityControlledEffect(
+        GainAbilityTargetEffect gainAbilityTargetEffect = new GainAbilityControlledEffect(
                 new SimpleActivatedAbility(
                         new UntapSourceEffect().setText("untap this creature"), new GenericManaCost(2)
-                ), Duration.WhileOnBattlefield, StaticFilters.FILTER_PERMANENT_SLIVERS)
-                .withForceQuotes()
+                ), Duration.WhileOnBattlefield, StaticFilters.FILTER_PERMANENT_SLIVERS);
+        this.addAbility(new SimpleStaticAbility(gainAbilityTargetEffect
         ));
     }
 

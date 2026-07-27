@@ -5,6 +5,7 @@ import mage.abilities.Ability;
 import mage.abilities.common.SimpleStaticAbility;
 import mage.abilities.dynamicvalue.common.DevotionCount;
 import mage.abilities.effects.common.continuous.GainAbilityControlledEffect;
+import mage.abilities.effects.common.continuous.GainAbilityTargetEffect;
 import mage.abilities.effects.common.continuous.SetBasePowerSourceEffect;
 import mage.abilities.effects.common.cost.SpellsCostModificationThatTargetSourceEffect;
 import mage.cards.CardImpl;
@@ -50,8 +51,9 @@ public final class CallapheBelovedOfTheSea extends CardImpl {
                 new SpellsCostModificationThatTargetSourceEffect(1, new FilterCard("Spells"), TargetController.OPPONENT)
                         .withTargetName("this permanent")
         );
+        GainAbilityTargetEffect gainAbilityTargetEffect = new GainAbilityControlledEffect(gainAbility, Duration.WhileOnBattlefield, filter);
         this.addAbility(new SimpleStaticAbility(
-                new GainAbilityControlledEffect(gainAbility, Duration.WhileOnBattlefield, filter).withForceQuotes()
+                gainAbilityTargetEffect
         ));
     }
 

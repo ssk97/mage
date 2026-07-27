@@ -12,6 +12,7 @@ import mage.abilities.effects.common.AttachEffect;
 import mage.abilities.effects.common.CreateTokenEffect;
 import mage.abilities.effects.common.continuous.BoostTargetEffect;
 import mage.abilities.effects.common.continuous.GainAbilityAttachedEffect;
+import mage.abilities.effects.common.continuous.GainAbilityTargetEffect;
 import mage.abilities.keyword.EnchantAbility;
 import mage.cards.CardImpl;
 import mage.cards.CardSetInfo;
@@ -50,8 +51,8 @@ public final class FriendlyNeighborhood extends CardImpl {
                 new ManaCostsImpl<>("{1}"));
         ability.addCost(new TapSourceCost());
         ability.addTarget(new TargetCreaturePermanent());
-        this.addAbility(new SimpleStaticAbility(new GainAbilityAttachedEffect(ability, AttachmentType.AURA, Duration.WhileOnBattlefield, null, "land")
-                .withQuotes(true)));
+        GainAbilityTargetEffect gainAbilityTargetEffect = new GainAbilityAttachedEffect(ability, AttachmentType.AURA, Duration.WhileOnBattlefield, null, "land");
+        this.addAbility(new SimpleStaticAbility(gainAbilityTargetEffect));
     }
 
     private FriendlyNeighborhood(final FriendlyNeighborhood card) {
