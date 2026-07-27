@@ -47,7 +47,9 @@ public class GainAbilityTargetEffect extends ContinuousEffectImpl {
     public GainAbilityTargetEffect(Ability ability, Duration duration, String rule, boolean useOnCard) {
         this(new CompoundAbility(ability), duration, rule, useOnCard);
     }
-
+    public GainAbilityTargetEffect(CompoundAbility abilities, Duration duration) {
+        this(abilities, duration, null, false);
+    }
     public GainAbilityTargetEffect(CompoundAbility abilities, Duration duration, String rule, boolean useOnCard) {
         super(duration, Layer.AbilityAddingRemovingEffects_6, SubLayer.NA, Outcome.AddAbility);
         this.abilities = abilities.copy();
