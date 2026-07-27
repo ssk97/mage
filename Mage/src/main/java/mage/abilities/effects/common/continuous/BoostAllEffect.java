@@ -50,13 +50,8 @@ public class BoostAllEffect extends BoostGenericEffect {
         if (excludeSource){
             filter.add(AnotherPredicate.instance);
         }
-
-        if (rule == null || rule.isEmpty()) {
-            setText("");
-        } else {
-            this.staticText = rule;
-        }
-        this.setTargetPointer(new FilterAllPermanentsTargetPointer(filter, duration != Duration.WhileOnBattlefield));
+        this.staticText = rule;
+        this.setTargetPointer(new FilterAllPermanentsTargetPointer(filter, duration != Duration.WhileOnBattlefield && duration != Duration.EndOfGame));
         this.getTargetPointer().setTargetDescription((excludeSource?"other ":"")+filter.getMessage());
     }
 

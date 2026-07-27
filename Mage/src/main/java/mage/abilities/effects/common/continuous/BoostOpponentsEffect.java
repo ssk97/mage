@@ -16,7 +16,7 @@ public class BoostOpponentsEffect extends BoostGenericEffect {
         super(power, toughness, duration);
         filter = filter.copy();
         filter.add(TargetController.OPPONENT.getControllerPredicate());
-        this.setTargetPointer(new FilterAllPermanentsTargetPointer(filter, duration != Duration.WhileOnBattlefield));
+        this.setTargetPointer(new FilterAllPermanentsTargetPointer(filter, duration != Duration.WhileOnBattlefield && duration != Duration.EndOfGame));
         this.getTargetPointer().setTargetDescription(filter.getMessage()+" your opponents control");
 
     }
