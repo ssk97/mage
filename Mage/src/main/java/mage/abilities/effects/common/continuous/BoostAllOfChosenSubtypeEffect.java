@@ -38,8 +38,9 @@ public class BoostAllOfChosenSubtypeEffect extends BoostAllEffect {
     }
 
     private static FilterCreaturePermanent modify(FilterCreaturePermanent filter) {
-        filter.add(isChosenTypePredicate.instance);
-        return filter;
+        FilterCreaturePermanent copy = filter.copy();
+        copy.add(isChosenTypePredicate.instance);
+        return copy;
     }
 }
 

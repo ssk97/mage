@@ -55,7 +55,7 @@ public class CompoundAbility extends AbilitiesImpl<Ability> {
             } else {
                 rule = CardUtil.stripReminderText(ability.getRule("this " + targetObjectName));
             }
-            if (rule.contains(" ")){
+            if (rule.contains(",") || rule.contains(":")){
                 rules.add('"'+rule+'"');
             } else {
                 rules.add(rule);
