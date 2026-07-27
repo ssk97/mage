@@ -3,6 +3,7 @@ package mage.abilities.effects.common.continuous;
 import mage.abilities.Ability;
 import mage.abilities.CompoundAbility;
 import mage.constants.Duration;
+import mage.constants.TargetController;
 import mage.filter.FilterPermanent;
 import mage.filter.predicate.mageobject.AnotherPredicate;
 import mage.target.targetpointer.FilterAllPermanentsTargetPointer;
@@ -24,15 +25,16 @@ public class GainAbilityControlledEffect extends GainAbilityTargetEffect {
         this(new CompoundAbility(ability), duration, filter, excludeSource);
     }
 
-    public GainAbilityControlledEffect(CompoundAbility ability, Duration duration, FilterPermanent filter, boolean excludeSource) {
-        super((Ability)ability, duration);
+    public GainAbilityControlledEffect(CompoundAbility abilities, Duration duration, FilterPermanent filter, boolean excludeSource) {
+        super(abilities, duration);
         FilterPermanent filterCopy = filter.copy();
         if (excludeSource) {
             filterCopy.add(AnotherPredicate.instance);
         }
+        filterCopy.add(TargetController.YOU.getControllerPredicate());
         this.setTargetPointer(new FilterAllPermanentsTargetPointer(filterCopy, duration!=Duration.WhileOnBattlefield));
 
-        this.generateGainAbilityDependencies(ability, filter);
+        this.generateGainAbilityDependencies(abilities, filter);
     }
 
     protected GainAbilityControlledEffect(final GainAbilityControlledEffect effect) {

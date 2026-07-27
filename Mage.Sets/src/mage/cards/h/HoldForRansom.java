@@ -43,7 +43,7 @@ public final class HoldForRansom extends CardImpl {
 
         // Enchanted creature can't attack or block and has "{7}: Hold for Ransom's controller sacrifices it and draws a card. Activate only as a sorcery."
         Ability ability = new SimpleStaticAbility(new CantAttackBlockAttachedEffect(AttachmentType.AURA));
-        ability.addEffect(new HoldForRansomGainEffect());
+        ability.addEffect(new HoldForRansomGainEffect().concatBy("and"));
         this.addAbility(ability);
     }
 
@@ -61,7 +61,7 @@ class HoldForRansomGainEffect extends GainAbilityAttachedEffect {
 
     HoldForRansomGainEffect() {
         super(new ActivateAsSorceryActivatedAbility(new HoldForRansomSacrificeEffect(), new GenericManaCost(7)), AttachmentType.AURA);
-        this.staticText = "and has \"" + ability.getRule() + '"';
+        this.getTargetPointer().setTargetDescription("");
     }
 
     private HoldForRansomGainEffect(final HoldForRansomGainEffect effect) {
