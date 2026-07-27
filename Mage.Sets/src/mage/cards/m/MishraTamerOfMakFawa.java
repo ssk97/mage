@@ -7,6 +7,7 @@ import mage.abilities.costs.common.SacrificeTargetCost;
 import mage.abilities.costs.mana.ManaCostsImpl;
 import mage.abilities.effects.ContinuousEffectImpl;
 import mage.abilities.effects.common.continuous.GainAbilityControlledEffect;
+import mage.abilities.effects.common.continuous.GainAbilityTargetEffect;
 import mage.abilities.keyword.UnearthAbility;
 import mage.abilities.keyword.WardAbility;
 import mage.cards.Card;
@@ -34,10 +35,11 @@ public final class MishraTamerOfMakFawa extends CardImpl {
         this.toughness = new MageInt(4);
 
         // Permanents you control have "Ward--Sacrifice a permanent."
-        this.addAbility(new SimpleStaticAbility(new GainAbilityControlledEffect(
+        GainAbilityTargetEffect gainAbilityTargetEffect = new GainAbilityControlledEffect(
                 new WardAbility(new SacrificeTargetCost(StaticFilters.FILTER_PERMANENT), false),
                 Duration.WhileOnBattlefield, StaticFilters.FILTER_PERMANENTS
-        ).withForceQuotes()));
+        );
+        this.addAbility(new SimpleStaticAbility(gainAbilityTargetEffect));
 
         // Each artifact card in your graveyard has unearth {1}{B}{R}
         this.addAbility(new SimpleStaticAbility(new MishraTamerOfMakFawaEffect()));

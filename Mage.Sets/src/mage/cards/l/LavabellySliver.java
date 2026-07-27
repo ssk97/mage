@@ -7,6 +7,7 @@ import mage.abilities.common.SimpleStaticAbility;
 import mage.abilities.effects.common.DamageTargetEffect;
 import mage.abilities.effects.common.GainLifeEffect;
 import mage.abilities.effects.common.continuous.GainAbilityControlledEffect;
+import mage.abilities.effects.common.continuous.GainAbilityTargetEffect;
 import mage.cards.CardImpl;
 import mage.cards.CardSetInfo;
 import mage.constants.CardType;
@@ -35,9 +36,10 @@ public final class LavabellySliver extends CardImpl {
         ).setTriggerPhrase("When this creature enters, ");
         ability.addEffect(new GainLifeEffect(1).concatBy("and"));
         ability.addTarget(new TargetPlayerOrPlaneswalker());
-        this.addAbility(new SimpleStaticAbility(new GainAbilityControlledEffect(
+        GainAbilityTargetEffect gainAbilityTargetEffect = new GainAbilityControlledEffect(
                 ability, Duration.WhileOnBattlefield, StaticFilters.FILTER_PERMANENT_SLIVERS
-        ).withForceQuotes()));
+        );
+        this.addAbility(new SimpleStaticAbility(gainAbilityTargetEffect));
     }
 
     private LavabellySliver(final LavabellySliver card) {

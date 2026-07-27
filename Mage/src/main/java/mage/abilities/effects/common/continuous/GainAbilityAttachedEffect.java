@@ -58,8 +58,8 @@ public class GainAbilityAttachedEffect extends GainAbilityTargetEffect {
     @Override
     public void afterGain(Game game, Ability source, Permanent permanent, Ability addedAbility) {
         super.afterGain(game, source, permanent, addedAbility);
-        if (doesntRemoveItself && ability instanceof ProtectionAbility) {
-            ((ProtectionAbility) ability).setAuraIdNotToBeRemoved(source.getSourceId());
+        if (doesntRemoveItself && addedAbility instanceof ProtectionAbility) {
+            ((ProtectionAbility) addedAbility).setAuraIdNotToBeRemoved(source.getSourceId());
         }
     }
 

@@ -6,6 +6,7 @@ import mage.abilities.common.SimpleStaticAbility;
 import mage.abilities.costs.common.PayLifeCost;
 import mage.abilities.effects.common.CantBeCounteredControlledEffect;
 import mage.abilities.effects.common.continuous.GainAbilityControlledEffect;
+import mage.abilities.effects.common.continuous.GainAbilityTargetEffect;
 import mage.abilities.keyword.WardAbility;
 import mage.cards.CardImpl;
 import mage.cards.CardSetInfo;
@@ -42,10 +43,11 @@ public final class HexingSquelcher extends CardImpl {
         this.addAbility(new SimpleStaticAbility(new CantBeCounteredControlledEffect(filter, Duration.WhileOnBattlefield)));
 
         // Other creatures you control have "Ward--Pay 2 life."
-        this.addAbility(new SimpleStaticAbility(new GainAbilityControlledEffect(
+        GainAbilityTargetEffect gainAbilityTargetEffect = new GainAbilityControlledEffect(
                 new WardAbility(new PayLifeCost(2), false), Duration.WhileOnBattlefield,
                 StaticFilters.FILTER_PERMANENT_CREATURES, true
-        ).withForceQuotes()));
+        );
+        this.addAbility(new SimpleStaticAbility(gainAbilityTargetEffect));
     }
 
     private HexingSquelcher(final HexingSquelcher card) {
