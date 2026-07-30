@@ -10,6 +10,7 @@ import mage.constants.Layer;
 import mage.constants.SubLayer;
 import mage.game.Game;
 import mage.game.permanent.Permanent;
+import mage.target.targetpointer.FilterAllPermanentsTargetPointer;
 import mage.util.CardUtil;
 
 import java.util.UUID;
@@ -80,8 +81,15 @@ public class BoostGenericEffect extends ContinuousEffectImpl {
         if (staticText != null && !staticText.isEmpty()) {
             return staticText;
         }
+        String getStr;
+        if (getTargetPointer() instanceof FilterAllPermanentsTargetPointer) {
+            getStr = " get ";
+        } else if (getTargetPointer().isPlural(mode.getTargets())){
+            getStr = " each get ";
+        } else {
+            getStr = " gets ";
+        }
         return getTargetPointer().describeTargets(mode.getTargets(), "it") +
-                (getTargetPointer().isPlural(mode.getTargets()) ? " each get " : " gets ") +
-                CardUtil.getBoostText(power, toughness, duration);
+                getStr + CardUtil.getBoostText(power, toughness, duration);
     }
 }
