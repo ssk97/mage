@@ -24,7 +24,7 @@ public class BoostEquippedEffect extends BoostGenericEffect {
 
     public BoostEquippedEffect(DynamicValue power, DynamicValue toughness, Duration duration) {
         super(power, toughness, duration);
-        this.setTargetPointer(new SourceAttachedTargetPointer(duration == Duration.EndOfTurn, "equipped creature"));
+        this.setTargetPointer(new SourceAttachedTargetPointer("equipped creature"));
     }
 
     protected BoostEquippedEffect(final BoostEquippedEffect effect) {

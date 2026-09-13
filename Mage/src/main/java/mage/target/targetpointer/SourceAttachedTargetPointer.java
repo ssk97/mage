@@ -11,36 +11,36 @@ import java.util.List;
 import java.util.UUID;
 
 public class SourceAttachedTargetPointer extends TargetPointerImpl {
+    // null while the set is still live; holding a reference is what makes this pointer a locked-in one
     private MageObjectReference mor;
-    private final boolean fixTarget;
 
     /**
      * Target pointer that always "targets" whatever the source of the ability is attached to.
      */
-    public SourceAttachedTargetPointer(boolean fixTarget, String description) {
+    public SourceAttachedTargetPointer(String description) {
         super();
-        this.fixTarget = fixTarget;
         this.targetDescription = description;
     }
     public SourceAttachedTargetPointer(final SourceAttachedTargetPointer other) {
         super(other);
-        this.fixTarget = other.fixTarget;
         this.mor = other.mor;
     }
 
 
     @Override
+    public void fixTargets(Game game, Ability source) {
+        // An ability that sacrifices its own Aura/Equipment as a cost has already lost the
+        // permanent by the time it resolves, so the attachment is only reachable through LKI.
+        Permanent attachment = game.getPermanentOrLKIBattlefield(source.getSourceId());
+        if (attachment != null && attachment.getAttachedTo() != null) {
+            mor = new MageObjectReference(attachment.getAttachedTo(), game);
+        }
+    }
+
+    @Override
     public void init(Game game, Ability source) {
         if (isInitialized()) {
             return;
-        }
-        // An ability that sacrifices its own Aura/Equipment as a cost has already lost the
-        // permanent by the time it resolves, so the attachment is only reachable through LKI.
-        if (fixTarget) {
-            Permanent attachment = game.getPermanentOrLKIBattlefield(source.getSourceId());
-            if (attachment != null && attachment.getAttachedTo() != null) {
-                mor = new MageObjectReference(attachment.getAttachedTo(), game);
-            }
         }
         setInitialized();
     }

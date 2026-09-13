@@ -35,7 +35,7 @@ public class GainAbilityAttachedEffect extends GainAbilityTargetEffect {
         } else {
             name = attachmentType.verb().toLowerCase()+" "+targetObjectName;
         }
-        this.setTargetPointer(new SourceAttachedTargetPointer(duration != Duration.WhileOnBattlefield, name));
+        this.setTargetPointer(new SourceAttachedTargetPointer(name));
         this.targetObjectName = targetObjectName;
     }
 

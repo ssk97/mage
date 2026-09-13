@@ -22,7 +22,7 @@ public class GainAbilitySourceEffect extends GainAbilityTargetEffect {
 
     public GainAbilitySourceEffect(Ability ability, Duration duration, boolean onCard) {
         super(ability, duration, onCard);
-        this.setTargetPointer(new SourceTargetPointer(false, onCard));
+        this.setTargetPointer(new SourceTargetPointer(onCard));
     }
 
     protected GainAbilitySourceEffect(final GainAbilitySourceEffect effect) {

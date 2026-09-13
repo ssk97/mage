@@ -35,7 +35,7 @@ public final class SwordOfFireAndIce extends CardImpl {
         this.addAbility(new SimpleStaticAbility(new BoostGainAbilityGenericEffect(
                 2, 2, Duration.WhileOnBattlefield,
                 ProtectionAbility.from(ObjectColor.RED, ObjectColor.BLUE)
-        ).setTargetPointer(new SourceAttachedTargetPointer(false, "equipped creature"))));
+        ).setTargetPointer(new SourceAttachedTargetPointer("equipped creature"))));
 
         // Whenever equipped creature deals combat damage to a player, Sword of Fire 
         // and Ice deals 2 damage to any target and you draw a card.

@@ -36,11 +36,7 @@ public class FilterAllPermanentsTargetPointer extends TargetPointerImpl {
     }
 
 
-    /**
-     * Determines the affected set now and holds it from here on. 611.2c puts that moment at the
-     * point the effect begins, and only the source ability knows whether it applies at all, so the
-     * owning effect calls this from its own init.
-     */
+    @Override
     public void fixTargets(Game game, Ability source) {
         affectedObjectList = game.getBattlefield()
                 .getActivePermanents(filter, source.getControllerId(), source, game)

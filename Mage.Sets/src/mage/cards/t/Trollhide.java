@@ -45,7 +45,7 @@ public final class Trollhide extends CardImpl {
                 2, 2, Duration.WhileOnBattlefield,
                 new SimpleActivatedAbility(new RegenerateSourceEffect(), new ManaCostsImpl<>("{1}{G}"))
         ).withTargetObjectName("creature")
-                .setTargetPointer(new SourceAttachedTargetPointer(false, "enchanted creature"))));
+                .setTargetPointer(new SourceAttachedTargetPointer("enchanted creature"))));
     }
 
     private Trollhide(final Trollhide card) {

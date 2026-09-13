@@ -24,7 +24,7 @@ public class BoostEnchantedEffect extends BoostGenericEffect {
 
     public BoostEnchantedEffect(DynamicValue power, DynamicValue toughness, Duration duration) {
         super(power, toughness, duration);
-        this.setTargetPointer(new SourceAttachedTargetPointer(duration != Duration.WhileOnBattlefield, "enchanted creature"));
+        this.setTargetPointer(new SourceAttachedTargetPointer("enchanted creature"));
     }
 
     protected BoostEnchantedEffect(final BoostEnchantedEffect effect) {

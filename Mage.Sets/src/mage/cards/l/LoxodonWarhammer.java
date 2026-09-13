@@ -30,7 +30,7 @@ public final class LoxodonWarhammer extends CardImpl {
         this.addAbility(new SimpleStaticAbility(new BoostGainAbilityGenericEffect(
                 3, 0, Duration.WhileOnBattlefield,
                 TrampleAbility.getInstance(), LifelinkAbility.getInstance()
-        ).setTargetPointer(new SourceAttachedTargetPointer(false, "equipped creature"))));
+        ).setTargetPointer(new SourceAttachedTargetPointer("equipped creature"))));
 
         // Equip (: Attach to target creature you control. Equip only as a sorcery.)
         this.addAbility(new EquipAbility(Outcome.BoostCreature, new GenericManaCost(3), false));

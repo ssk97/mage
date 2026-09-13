@@ -181,14 +181,11 @@ public class BoostGainAbilityGenericEffect extends ContinuousEffectImpl {
 
         // 611.2c: the source ability decides whether the affected set is locked in, and this is the
         // moment the effect begins
-        if (getTargetPointer() instanceof FilterAllPermanentsTargetPointer
-                && getAffectedObjectsSetAtInit(source)) {
-            ((FilterAllPermanentsTargetPointer) getTargetPointer()).fixTargets(game, source);
-        }
-
-        if (!getAffectedObjectsSet()) {
+        if (!getAffectedObjectsSetAtInit(source)) {
             return;
         }
+        getTargetPointer().fixTargets(game, source);
+
         if (hasBoost()) {
             // a dynamic boost is locked in at resolution
             power = StaticValue.get(power.calculate(game, source, this));

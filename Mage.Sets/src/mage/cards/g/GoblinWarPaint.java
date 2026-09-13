@@ -40,7 +40,7 @@ public final class GoblinWarPaint extends CardImpl {
         // Enchanted creature gets +2/+2 and has haste.
         this.addAbility(new SimpleStaticAbility(new BoostGainAbilityGenericEffect(
                 2, 2, Duration.WhileOnBattlefield, HasteAbility.getInstance()
-        ).setTargetPointer(new SourceAttachedTargetPointer(false, "enchanted creature"))));
+        ).setTargetPointer(new SourceAttachedTargetPointer("enchanted creature"))));
     }
 
     private GoblinWarPaint(final GoblinWarPaint card) {
