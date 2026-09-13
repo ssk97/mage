@@ -56,8 +56,6 @@ public final class ArchangelOfStrife extends CardImpl {
 
         // Creatures controlled by players who chose peace get +0/+3.
         this.addAbility(new SimpleStaticAbility(new BoostAllEffect(0, 3, Duration.WhileOnBattlefield, peaceFilter)));
-
-        //TODO: Add test
     }
 
     private ArchangelOfStrife(final ArchangelOfStrife card) {

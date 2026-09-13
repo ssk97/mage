@@ -1,10 +1,8 @@
 package mage.cards.b;
 
 import mage.abilities.Ability;
-import mage.abilities.effects.ContinuousEffect;
 import mage.abilities.effects.OneShotEffect;
 import mage.abilities.effects.common.continuous.BoostAllEffect;
-import mage.abilities.effects.common.continuous.BoostTargetEffect;
 import mage.cards.CardImpl;
 import mage.cards.CardSetInfo;
 import mage.constants.CardType;
@@ -18,7 +16,6 @@ import mage.filter.predicate.mageobject.NamePredicate;
 import mage.game.Game;
 import mage.game.permanent.Permanent;
 import mage.target.common.TargetCreaturePermanent;
-import mage.target.targetpointer.FixedTarget;
 
 import java.util.UUID;
 
@@ -63,14 +60,12 @@ class BileBlightEffect extends OneShotEffect {
             return false;
         }
         FilterPermanent filter = new FilterCreaturePermanent();
-        filter.add(new NamePredicate(target.getName()));
-        filter.add(Predicates.not(new MageObjectReferencePredicate(target, game)));
+        // a face down creature has no name, and nothing shares a name with it, so the target has to
+        // be matched by identity rather than through the name it may not have
+        filter.add(Predicates.or(
+                new MageObjectReferencePredicate(target, game),
+                new NamePredicate(target.getName())));
         game.addEffect(new BoostAllEffect(-3, -3, Duration.EndOfTurn, filter), source);
-
-        // separate effect for the target itself, as a creature with an empty name is not matched by the filter
-        ContinuousEffect targetEffect = new BoostTargetEffect(-3, -3);
-        targetEffect.setTargetPointer(new FixedTarget(target, game));
-        game.addEffect(targetEffect, source);
         return true;
     }
 
