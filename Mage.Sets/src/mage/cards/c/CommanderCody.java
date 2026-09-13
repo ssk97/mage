@@ -37,9 +37,7 @@ public final class CommanderCody extends CardImpl {
         // Non-token Trooper creatures you control have "At the beginning of your upkeep, create a 1/1 white Trooper creature token."
         this.addAbility(new SimpleStaticAbility(new GainAbilityControlledEffect(
                 new BeginningOfUpkeepTriggeredAbility(new CreateTokenEffect(new TrooperWhiteToken())),
-                Duration.WhileOnBattlefield, filter, false)
-                .withForceQuotes()
-        ));
+                Duration.WhileOnBattlefield, filter, false)));
     }
 
     private CommanderCody(final CommanderCody card) {

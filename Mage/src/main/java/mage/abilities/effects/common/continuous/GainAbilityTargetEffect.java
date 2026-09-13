@@ -2,14 +2,16 @@ package mage.abilities.effects.common.continuous;
 
 import mage.MageObjectReference;
 import mage.abilities.Ability;
+import mage.abilities.CompoundAbility;
 import mage.abilities.Mode;
-import mage.abilities.common.LinkedEffectIdStaticAbility;
 import mage.abilities.effects.ContinuousEffectImpl;
 import mage.cards.Card;
-import mage.constants.*;
+import mage.constants.Duration;
+import mage.constants.Layer;
+import mage.constants.Outcome;
+import mage.constants.SubLayer;
 import mage.game.Game;
 import mage.game.permanent.Permanent;
-import mage.util.CardUtil;
 
 import java.util.*;
 
@@ -18,11 +20,14 @@ import java.util.*;
  */
 public class GainAbilityTargetEffect extends ContinuousEffectImpl {
 
-    protected final Ability ability;
+    protected CompoundAbility abilities;
 
     // shall a card gain the ability (otherwise a permanent)
     private final boolean useOnCard; // only one card per ability supported
     private boolean waitingCardPermanent = false; // wait the permanent from card's resolve (for inner usage only)
+
+    protected String targetObjectName = null;
+    protected boolean durationRuleAtStart = false; // put duration rule to the start of the rules instead end
 
     public GainAbilityTargetEffect(Ability ability) {
         this(ability, Duration.EndOfTurn);
@@ -35,20 +40,29 @@ public class GainAbilityTargetEffect extends ContinuousEffectImpl {
     public GainAbilityTargetEffect(Ability ability, Duration duration, String rule) {
         this(ability, duration, rule, false);
     }
+    public GainAbilityTargetEffect(Ability ability, Duration duration, boolean useOnCard) {
+        this(ability, duration, null, useOnCard);
+    }
 
     public GainAbilityTargetEffect(Ability ability, Duration duration, String rule, boolean useOnCard) {
-        super(duration, Layer.AbilityAddingRemovingEffects_6, SubLayer.NA, ability.getEffects().getOutcome(ability, Outcome.AddAbility));
-        this.ability = copyAbility(ability); // See the method's comment, ability.copy() is not enough.
+        this(new CompoundAbility(ability), duration, rule, useOnCard);
+    }
+    public GainAbilityTargetEffect(CompoundAbility abilities, Duration duration) {
+        this(abilities, duration, null, false);
+    }
+    public GainAbilityTargetEffect(CompoundAbility abilities, Duration duration, String rule, boolean useOnCard) {
+        super(duration, Layer.AbilityAddingRemovingEffects_6, SubLayer.NA, Outcome.AddAbility);
+        this.abilities = abilities.copy();
 
         this.staticText = rule;
         this.useOnCard = useOnCard;
 
-        this.generateGainAbilityDependencies(ability, null);
+        this.generateGainAbilityDependencies(abilities, null);
     }
 
     protected GainAbilityTargetEffect(final GainAbilityTargetEffect effect) {
         super(effect);
-        this.ability = copyAbility(effect.ability); // See the method's comment, ability.copy() is not enough.
+        this.abilities = effect.abilities.copy(); // See the method's comment, ability.copy() is not enough.
         this.useOnCard = effect.useOnCard;
         this.waitingCardPermanent = effect.waitingCardPermanent;
     }
@@ -103,7 +117,10 @@ public class GainAbilityTargetEffect extends ContinuousEffectImpl {
                 Permanent permanent = mor.getPermanent(game);
                 if (permanent != null) {
                     this.waitingCardPermanent = false;
-                    permanent.addAbility(ability, source.getSourceId(), game);
+                    for (Ability ability:abilities) {
+                        permanent.addAbility(ability, source.getSourceId(), game);
+                        afterGain(game, source, permanent, ability);
+                    }
                     affectedTargets++;
                     continue;
                 }
@@ -112,14 +129,19 @@ public class GainAbilityTargetEffect extends ContinuousEffectImpl {
                 if (this.useOnCard) {
                     Card card = mor.getCard(game);
                     if (card != null) {
-                        game.getState().addOtherAbility(card, ability);
+                        for (Ability ability:abilities) {
+                            game.getState().addOtherAbility(card, ability);
+                        }
                         affectedTargets++;
                         continue;
                     } else {
                         // start waiting a spell's permanent (example: Tyvar Kell's emblem)
                         Permanent perm = game.getPermanent(mor.getSourceId());
                         if (perm != null) {
-                            perm.addAbility(ability, source.getSourceId(), game);
+                            for (Ability ability:abilities) {
+                                perm.addAbility(ability, source.getSourceId(), game);
+                                afterGain(game, source, perm, ability);
+                            }
                             affectedTargets++;
                             newWaitingPermanents.add(new MageObjectReference(perm, game));
                             this.waitingCardPermanent = false;
@@ -150,14 +172,19 @@ public class GainAbilityTargetEffect extends ContinuousEffectImpl {
             for (UUID objectId : getTargetPointer().getTargets(game, source)) {
                 Permanent permanent = game.getPermanent(objectId);
                 if (permanent != null) {
-                    permanent.addAbility(ability, source.getSourceId(), game);
+                    for (Ability ability:abilities) {
+                        permanent.addAbility(ability, source.getSourceId(), game);
+                        afterGain(game, source, permanent, ability);
+                    }
                     affectedTargets++;
                     continue;
                 }
                 if (this.useOnCard) {
                     Card card = game.getCard(objectId);
                     if (card != null) {
-                        game.getState().addOtherAbility(card, ability);
+                        for (Ability ability:abilities) {
+                            game.getState().addOtherAbility(card, ability);
+                        }
                         affectedTargets++;
                     }
                 }
@@ -165,21 +192,21 @@ public class GainAbilityTargetEffect extends ContinuousEffectImpl {
         }
         return affectedTargets > 0;
     }
-
     /**
-     * Copying the ability and providing ability is needed in a few situations,
-     * The copy in order to have internal fields be proper to that ability in particular.
-     * Id must be different for the copy, for a few things like the GainAbilityTargetEffect gained
-     * by a clone, or in the case of an activated ability, called multiple times on the same target,
-     * and thus the ability should be gained multiple times.
+     * Calls after ability gain. Override it to apply additional data (example: transfer ability's settings from original to destination source)
+     *
+     * @param game
+     * @param source
+     * @param permanent
+     * @param addedAbility
      */
-    private Ability copyAbility(Ability toCopyAbility) {
-        Ability abilityToCopy = toCopyAbility.copy();
-        abilityToCopy.newId();
-        if (abilityToCopy instanceof LinkedEffectIdStaticAbility) {
-            ((LinkedEffectIdStaticAbility) abilityToCopy).setEffectIdManually();
-        }
-        return abilityToCopy;
+    public void afterGain(Game game, Ability source, Permanent permanent, Ability addedAbility) {
+        //
+    }
+
+    public GainAbilityTargetEffect withDurationRuleAtStart(boolean durationRuleAtStart) {
+        this.durationRuleAtStart = durationRuleAtStart;
+        return this;
     }
 
     @Override
@@ -187,11 +214,19 @@ public class GainAbilityTargetEffect extends ContinuousEffectImpl {
         if (staticText != null && !staticText.isEmpty()) {
             return staticText;
         }
-        StringBuilder sb = new StringBuilder(getTargetPointer().describeTargets(mode.getTargets(), "it"));
-        sb.append(getTargetPointer().isPlural(mode.getTargets()) ? " gain " : " gains ");
-        sb.append(CardUtil.stripReminderText(ability.getRule()));
-        if (!duration.toString().isEmpty()) {
-            sb.append(' ').append(duration.toString());
+        StringBuilder sb = new StringBuilder();
+        if (durationRuleAtStart && !duration.toString().isEmpty() && duration != Duration.EndOfGame) {
+            sb.append(duration).append(", ");
+        }
+        sb.append(getTargetPointer().describeTargets(mode.getTargets(), "it"));
+        if (duration == Duration.WhileOnBattlefield) {
+            sb.append(getTargetPointer().isPlural(mode.getTargets()) ? " has " : " have ");
+        } else {
+            sb.append(getTargetPointer().isPlural(mode.getTargets()) ? " gain " : " gains ");
+        }
+        sb.append(abilities.getMultiRule(targetObjectName));
+        if (!durationRuleAtStart && !duration.toString().isEmpty() && duration != Duration.EndOfGame) {
+            sb.append(' ').append(duration);
         }
         return sb.toString();
     }
