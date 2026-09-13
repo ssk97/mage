@@ -73,6 +73,9 @@ enum ShareColorTopCardPredicate implements ObjectSourcePlayerPredicate<MageObjec
             return false;
         }
         Card topCard = you.getLibrary().getFromTop(game);
+        if (topCard == null) {
+            return false;
+        }
         return input.getObject().getColor(game).shares(topCard.getColor(game));
     }
 }
