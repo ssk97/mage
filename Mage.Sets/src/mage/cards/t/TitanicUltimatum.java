@@ -1,9 +1,9 @@
 
 package mage.cards.t;
 
+import mage.abilities.effects.common.continuous.BoostGainAbilityGenericEffect;
+import mage.target.targetpointer.FilterAllPermanentsTargetPointer;
 import java.util.UUID;
-import mage.abilities.effects.common.continuous.BoostControlledEffect;
-import mage.abilities.effects.common.continuous.GainAbilityControlledEffect;
 import mage.abilities.keyword.FirstStrikeAbility;
 import mage.abilities.keyword.LifelinkAbility;
 import mage.abilities.keyword.TrampleAbility;
@@ -23,12 +23,11 @@ public final class TitanicUltimatum extends CardImpl {
         super(ownerId, setInfo, new CardType[]{CardType.SORCERY}, "{R}{R}{G}{G}{G}{W}{W}");
 
         // Until end of turn, creatures you control get +5/+5 and gain first strike, trample, and lifelink.
-        this.getSpellAbility().addEffect(new BoostControlledEffect(5, 5, Duration.EndOfTurn, StaticFilters.FILTER_PERMANENT_CREATURES)
-                .setText("Until end of turn, creatures you control get +5/+5"));
-        this.getSpellAbility().addEffect(new GainAbilityControlledEffect(
-                Duration.EndOfTurn, StaticFilters.FILTER_PERMANENT_CREATURES,
+        this.getSpellAbility().addEffect(new BoostGainAbilityGenericEffect(
+                5, 5, Duration.EndOfTurn,
                 FirstStrikeAbility.getInstance(), TrampleAbility.getInstance(), LifelinkAbility.getInstance()
-        ).setText("and gain first strike, trample, and lifelink"));
+        ).withDurationRuleAtStart(true).setTargetPointer(new FilterAllPermanentsTargetPointer(
+                StaticFilters.FILTER_CONTROLLED_CREATURES, true)));
     }
 
     private TitanicUltimatum(final TitanicUltimatum card) {

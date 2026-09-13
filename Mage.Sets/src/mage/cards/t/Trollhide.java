@@ -2,16 +2,15 @@
 
 package mage.cards.t;
 
+import mage.abilities.effects.common.continuous.BoostGainAbilityGenericEffect;
+import mage.target.targetpointer.SourceAttachedTargetPointer;
 import java.util.UUID;
 import mage.abilities.Ability;
 import mage.abilities.common.SimpleActivatedAbility;
 import mage.abilities.common.SimpleStaticAbility;
 import mage.abilities.costs.mana.ManaCostsImpl;
-import mage.abilities.effects.Effect;
 import mage.abilities.effects.common.AttachEffect;
 import mage.abilities.effects.common.RegenerateSourceEffect;
-import mage.abilities.effects.common.continuous.BoostEnchantedEffect;
-import mage.abilities.effects.common.continuous.GainAbilityAttachedEffect;
 import mage.abilities.keyword.EnchantAbility;
 import mage.cards.CardImpl;
 import mage.cards.CardSetInfo;
@@ -42,12 +41,11 @@ public final class Trollhide extends CardImpl {
         this.addAbility(ability);
 
         // Enchanted creature gets +2/+2 and has "{1}{G}: Regenerate this creature."
-        ability = new SimpleStaticAbility(new BoostEnchantedEffect(2, 2, Duration.WhileOnBattlefield));
-        Effect effect = new GainAbilityAttachedEffect(new SimpleActivatedAbility(
-            new RegenerateSourceEffect(), new ManaCostsImpl<>("{1}{G}")), AttachmentType.AURA);
-        effect.setText("and has \"{1}{G}: Regenerate this creature.\"");
-        ability.addEffect(effect);
-        this.addAbility(ability);
+        this.addAbility(new SimpleStaticAbility(new BoostGainAbilityGenericEffect(
+                2, 2, Duration.WhileOnBattlefield,
+                new SimpleActivatedAbility(new RegenerateSourceEffect(), new ManaCostsImpl<>("{1}{G}"))
+        ).withTargetObjectName("creature")
+                .setTargetPointer(new SourceAttachedTargetPointer(false, "enchanted creature"))));
     }
 
     private Trollhide(final Trollhide card) {

@@ -1,11 +1,11 @@
 package mage.cards.c;
 
+import mage.abilities.effects.common.continuous.BoostGainAbilityGenericEffect;
+import mage.target.targetpointer.FilterAllPermanentsTargetPointer;
 import mage.MageInt;
 import mage.abilities.Ability;
 import mage.abilities.common.EntersBattlefieldTriggeredAbility;
 import mage.abilities.dynamicvalue.common.CreaturesYouControlCount;
-import mage.abilities.effects.common.continuous.BoostControlledEffect;
-import mage.abilities.effects.common.continuous.GainAbilityControlledEffect;
 import mage.abilities.hint.common.CreaturesYouControlHint;
 import mage.abilities.keyword.HasteAbility;
 import mage.abilities.keyword.TrampleAbility;
@@ -33,13 +33,13 @@ public final class CraterhoofBehemoth extends CardImpl {
         this.addAbility(HasteAbility.getInstance());
 
         // When Craterhoof Behemoth enters the battlefield, creatures you control gain trample and get +X/+X until end of turn, where X is the number of creatures you control.
-        Ability ability = new EntersBattlefieldTriggeredAbility(new GainAbilityControlledEffect(
-                TrampleAbility.getInstance(), Duration.EndOfTurn, StaticFilters.FILTER_CONTROLLED_CREATURES
-        ).setText("creatures you control gain trample"));
-        ability.addEffect(new BoostControlledEffect(
+        Ability ability = new EntersBattlefieldTriggeredAbility(new BoostGainAbilityGenericEffect(
                 CreaturesYouControlCount.PLURAL, CreaturesYouControlCount.PLURAL,
-                Duration.EndOfTurn, StaticFilters.FILTER_CONTROLLED_CREATURES, false
-        ).setText("and get +X/+X until end of turn, where X is the number of creatures you control"));
+                Duration.EndOfTurn, TrampleAbility.getInstance()
+        ).withAbilitiesFirst(true).setTargetPointer(new FilterAllPermanentsTargetPointer(
+                StaticFilters.FILTER_CONTROLLED_CREATURES, true)
+        ).setText("creatures you control gain trample and get +X/+X until end of turn, "
+                + "where X is the number of creatures you control"));
         ability.addHint(CreaturesYouControlHint.instance);
         this.addAbility(ability);
     }

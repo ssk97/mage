@@ -1,5 +1,8 @@
 package mage.cards.s;
 
+import mage.abilities.effects.common.continuous.BoostGainAbilityGenericEffect;
+import mage.target.targetpointer.SourceAttachedTargetPointer;
+import mage.constants.Duration;
 import mage.ObjectColor;
 import mage.abilities.Ability;
 import mage.abilities.common.DealsDamageToAPlayerAttachedTriggeredAbility;
@@ -7,8 +10,6 @@ import mage.abilities.common.SimpleStaticAbility;
 import mage.abilities.costs.mana.GenericManaCost;
 import mage.abilities.effects.common.DamageTargetEffect;
 import mage.abilities.effects.common.DrawCardSourceControllerEffect;
-import mage.abilities.effects.common.continuous.BoostEquippedEffect;
-import mage.abilities.effects.common.continuous.GainAbilityAttachedEffect;
 import mage.abilities.keyword.EquipAbility;
 import mage.abilities.keyword.ProtectionAbility;
 import mage.cards.CardImpl;
@@ -31,15 +32,14 @@ public final class SwordOfFireAndIce extends CardImpl {
         this.subtype.add(SubType.EQUIPMENT);
 
         // Equipped creature gets +2/+2 and has protection from red and from blue.
-        Ability ability = new SimpleStaticAbility(new BoostEquippedEffect(2, 2));
-        ability.addEffect(new GainAbilityAttachedEffect(
-                ProtectionAbility.from(ObjectColor.RED, ObjectColor.BLUE), AttachmentType.EQUIPMENT
-        ).setText("and has protection from red and from blue"));
-        this.addAbility(ability);
+        this.addAbility(new SimpleStaticAbility(new BoostGainAbilityGenericEffect(
+                2, 2, Duration.WhileOnBattlefield,
+                ProtectionAbility.from(ObjectColor.RED, ObjectColor.BLUE)
+        ).setTargetPointer(new SourceAttachedTargetPointer(false, "equipped creature"))));
 
         // Whenever equipped creature deals combat damage to a player, Sword of Fire 
         // and Ice deals 2 damage to any target and you draw a card.
-        ability = new DealsDamageToAPlayerAttachedTriggeredAbility(
+        Ability ability = new DealsDamageToAPlayerAttachedTriggeredAbility(
                 new DamageTargetEffect(2), "equipped creature", false
         );
         ability.addEffect(new DrawCardSourceControllerEffect(1, true).concatBy("and"));

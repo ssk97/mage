@@ -1,15 +1,14 @@
 
 package mage.cards.r;
 
+import mage.abilities.effects.common.continuous.BoostGainAbilityGenericEffect;
+import mage.target.targetpointer.SourceAttachedTargetPointer;
 import java.util.UUID;
 import mage.abilities.Ability;
 import mage.abilities.common.PutIntoGraveFromBattlefieldSourceTriggeredAbility;
 import mage.abilities.common.SimpleStaticAbility;
-import mage.abilities.effects.Effect;
 import mage.abilities.effects.common.AttachEffect;
 import mage.abilities.effects.common.ReturnToHandSourceEffect;
-import mage.abilities.effects.common.continuous.BoostEnchantedEffect;
-import mage.abilities.effects.common.continuous.GainAbilityAttachedEffect;
 import mage.abilities.keyword.EnchantAbility;
 import mage.abilities.keyword.TrampleAbility;
 import mage.cards.CardImpl;
@@ -36,11 +35,9 @@ public final class Rancor extends CardImpl {
         this.addAbility(ability);
 
         // Enchanted creature gets +2/+0 and has trample.
-        ability = new SimpleStaticAbility(new BoostEnchantedEffect(2, 0));
-        Effect effect = new GainAbilityAttachedEffect(TrampleAbility.getInstance(), AttachmentType.AURA);
-        effect.setText("and has trample");
-        ability.addEffect(effect);
-        this.addAbility(ability);
+        this.addAbility(new SimpleStaticAbility(new BoostGainAbilityGenericEffect(
+                2, 0, Duration.WhileOnBattlefield, TrampleAbility.getInstance()
+        ).setTargetPointer(new SourceAttachedTargetPointer(false, "enchanted creature"))));
 
         // When Rancor is put into a graveyard from the battlefield, return Rancor to its owner's hand.
         this.addAbility(new PutIntoGraveFromBattlefieldSourceTriggeredAbility(new ReturnToHandSourceEffect()));

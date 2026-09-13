@@ -1,18 +1,17 @@
 
 package mage.cards.g;
 
+import mage.abilities.effects.common.continuous.BoostGainAbilityGenericEffect;
+import mage.target.targetpointer.SourceAttachedTargetPointer;
 import java.util.UUID;
 import mage.abilities.Ability;
 import mage.abilities.common.SimpleStaticAbility;
-import mage.abilities.effects.Effect;
 import mage.abilities.effects.common.AttachEffect;
-import mage.abilities.effects.common.continuous.BoostEnchantedEffect;
-import mage.abilities.effects.common.continuous.GainAbilityAttachedEffect;
 import mage.abilities.keyword.EnchantAbility;
 import mage.abilities.keyword.HasteAbility;
 import mage.cards.CardImpl;
 import mage.cards.CardSetInfo;
-import mage.constants.AttachmentType;
+import mage.constants.Duration;
 import mage.constants.CardType;
 import mage.constants.SubType;
 import mage.constants.Outcome;
@@ -39,11 +38,9 @@ public final class GoblinWarPaint extends CardImpl {
         this.addAbility(ability);
 
         // Enchanted creature gets +2/+2 and has haste.
-        Effect effect = new GainAbilityAttachedEffect(HasteAbility.getInstance(), AttachmentType.AURA);
-        effect.setText("and has haste");
-        ability = new SimpleStaticAbility(new BoostEnchantedEffect(2, 2));
-        ability.addEffect(effect);
-        this.addAbility(ability);
+        this.addAbility(new SimpleStaticAbility(new BoostGainAbilityGenericEffect(
+                2, 2, Duration.WhileOnBattlefield, HasteAbility.getInstance()
+        ).setTargetPointer(new SourceAttachedTargetPointer(false, "enchanted creature"))));
     }
 
     private GoblinWarPaint(final GoblinWarPaint card) {
