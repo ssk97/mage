@@ -23,7 +23,7 @@ public final class Overrun extends CardImpl {
         this.getSpellAbility().addEffect(new BoostGainAbilityGenericEffect(
                 3, 3, Duration.EndOfTurn, TrampleAbility.getInstance()
         ).setTargetPointer(new FilterAllPermanentsTargetPointer(
-                StaticFilters.FILTER_CONTROLLED_CREATURES, true)));
+                StaticFilters.FILTER_CONTROLLED_CREATURES)));
     }
 
     private Overrun(final Overrun card) {

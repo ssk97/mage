@@ -158,16 +158,33 @@ public class BoostGainAbilityGenericEffect extends ContinuousEffectImpl {
 
     /**
      * Replace the granted abilities, for effects that can only build them from runtime state
-     * (example: Grothama, All-Devouring). Call it from apply, before delegating to super.
+     * (example: Grothama, All-Devouring). Call it from {@link #prepareAbilities}.
      */
     protected void setGrantedAbilities(Ability... newAbilities) {
         this.abilities.clear();
         copyInto(this.abilities, Arrays.asList(newAbilities));
     }
 
+    /**
+     * Called before the granted abilities are applied, so that an effect which can only build them
+     * from runtime state can call {@link #setGrantedAbilities} first.
+     *
+     * @return false to grant nothing this time round
+     */
+    protected boolean prepareAbilities(Game game, Ability source) {
+        return true;
+    }
+
     @Override
     public void init(Ability source, Game game) {
         super.init(source, game);
+
+        // 611.2c: whether the affected set is locked in depends on the source ability, not on the
+        // duration, so this is the earliest point at which the target pointer can be told
+        if (getTargetPointer() instanceof FilterAllPermanentsTargetPointer) {
+            ((FilterAllPermanentsTargetPointer) getTargetPointer())
+                    .setFixTargets(getAffectedObjectsSetAtInit(source));
+        }
 
         // must support dynamic targets from static ability and static targets from activated abilities
         if (!getAffectedObjectsSet()) {
@@ -178,19 +195,16 @@ public class BoostGainAbilityGenericEffect extends ContinuousEffectImpl {
             power = StaticValue.get(power.calculate(game, source, this));
             toughness = StaticValue.get(toughness.calculate(game, source, this));
         }
-        if (!hasAbilities()) {
-            return;
-        }
 
-        // target permanents (by default)
-        getTargetPointer().getTargets(game, source)
-                .stream()
-                .map(game::getPermanent)
-                .filter(Objects::nonNull)
-                .forEach(permanent -> this.affectedObjectList.add(new MageObjectReference(permanent, game)));
-
-        // target cards with linked permanents
-        if (this.useOnCard) {
+        // Permanents need no snapshot here: the target pointer already locks its own set in when the
+        // source ability calls for it. Only the card hand-off below has to remember what it started
+        // from, because the card it points at becomes a different object once it resolves.
+        if (hasAbilities() && this.useOnCard) {
+            getTargetPointer().getTargets(game, source)
+                    .stream()
+                    .map(game::getPermanent)
+                    .filter(Objects::nonNull)
+                    .forEach(permanent -> this.affectedObjectList.add(new MageObjectReference(permanent, game)));
             getTargetPointer().getTargets(game, source)
                     .stream()
                     .map(game::getCard)
@@ -233,88 +247,109 @@ public class BoostGainAbilityGenericEffect extends ContinuousEffectImpl {
     }
 
     private boolean applyAbilities(Game game, Ability source) {
+        if (!prepareAbilities(game, source)) {
+            return false;
+        }
+        if (this.useOnCard && getAffectedObjectsSet()) {
+            return applyToWaitingCard(game, source);
+        }
+
         int affectedTargets = 0;
-        if (getAffectedObjectsSet()) {
-            // STATIC TARGETS
-            List<MageObjectReference> newWaitingPermanents = new ArrayList<>();
-            for (Iterator<MageObjectReference> it = affectedObjectList.iterator(); it.hasNext(); ) {
-                MageObjectReference mor = it.next();
-
-                // look for permanent
-                Permanent permanent = mor.getPermanent(game);
-                if (permanent != null) {
-                    this.waitingCardPermanent = false;
-                    gainAll(game, source, permanent);
+        for (UUID objectId : getTargetPointer().getTargets(game, source)) {
+            Permanent permanent = game.getPermanent(objectId);
+            if (permanent != null) {
+                gainAll(game, source, permanent);
+                affectedTargets++;
+                continue;
+            }
+            if (this.useOnCard) {
+                Card card = game.getCard(objectId);
+                if (card != null) {
+                    addToCard(game, card);
                     affectedTargets++;
-                    continue;
-                }
-
-                // look for card with linked permanent
-                if (this.useOnCard) {
-                    Card card = mor.getCard(game);
-                    if (card != null) {
-                        for (Ability ability : abilities) {
-                            game.getState().addOtherAbility(card, ability);
-                        }
-                        affectedTargets++;
-                        continue;
-                    } else {
-                        // start waiting a spell's permanent (example: Tyvar Kell's emblem)
-                        Permanent perm = game.getPermanent(mor.getSourceId());
-                        if (perm != null) {
-                            gainAll(game, source, perm);
-                            affectedTargets++;
-                            newWaitingPermanents.add(new MageObjectReference(perm, game));
-                            this.waitingCardPermanent = false;
-                        }
-                    }
-                }
-                // bad target, can be removed
-                it.remove();
-            }
-
-            // add new linked permanents to targets
-            if (!newWaitingPermanents.isEmpty()) {
-                this.affectedObjectList.addAll(newWaitingPermanents);
-                return affectedTargets > 0;
-            }
-
-            // no more valid targets
-            if (this.affectedObjectList.isEmpty()) {
-                discard();
-            }
-
-            // no more valid permanents (card was countered without new permanent)
-            if (duration == Duration.Custom && affectedTargets == 0 && !this.waitingCardPermanent) {
-                discard();
-            }
-        } else {
-            // DYNAMIC TARGETS
-            for (UUID objectId : getTargetPointer().getTargets(game, source)) {
-                Permanent permanent = game.getPermanent(objectId);
-                if (permanent != null) {
-                    gainAll(game, source, permanent);
-                    affectedTargets++;
-                    continue;
-                }
-                if (this.useOnCard) {
-                    Card card = game.getCard(objectId);
-                    if (card != null) {
-                        for (Ability ability : abilities) {
-                            game.getState().addOtherAbility(card, ability);
-                        }
-                        affectedTargets++;
-                    }
                 }
             }
+        }
+
+        // a locked-in set that has run dry is gone for good, while a dynamic one may fill again
+        if (affectedTargets == 0 && getAffectedObjectsSet()) {
+            discard();
         }
         return affectedTargets > 0;
     }
 
+    /**
+     * A grant made to a card that is about to become a permanent (example: Tyvar Kell's emblem).
+     * The card and the permanent it resolves into are different objects, so the effect has to follow
+     * it across that change rather than re-asking the target pointer.
+     */
+    private boolean applyToWaitingCard(Game game, Ability source) {
+        int affectedTargets = 0;
+        List<MageObjectReference> newWaitingPermanents = new ArrayList<>();
+        for (Iterator<MageObjectReference> it = affectedObjectList.iterator(); it.hasNext(); ) {
+            MageObjectReference mor = it.next();
+
+            // look for permanent
+            Permanent permanent = mor.getPermanent(game);
+            if (permanent != null) {
+                this.waitingCardPermanent = false;
+                gainAll(game, source, permanent);
+                affectedTargets++;
+                continue;
+            }
+
+            // look for card with linked permanent
+            Card card = mor.getCard(game);
+            if (card != null) {
+                addToCard(game, card);
+                affectedTargets++;
+                continue;
+            }
+
+            // start waiting a spell's permanent
+            Permanent perm = game.getPermanent(mor.getSourceId());
+            if (perm != null) {
+                gainAll(game, source, perm);
+                affectedTargets++;
+                newWaitingPermanents.add(new MageObjectReference(perm, game));
+                this.waitingCardPermanent = false;
+            }
+            // bad target, can be removed
+            it.remove();
+        }
+
+        // add new linked permanents to targets
+        if (!newWaitingPermanents.isEmpty()) {
+            this.affectedObjectList.addAll(newWaitingPermanents);
+            return affectedTargets > 0;
+        }
+
+        // no more valid targets
+        if (this.affectedObjectList.isEmpty()) {
+            discard();
+        }
+
+        // no more valid permanents (card was countered without new permanent)
+        if (duration == Duration.Custom && affectedTargets == 0 && !this.waitingCardPermanent) {
+            discard();
+        }
+        return affectedTargets > 0;
+    }
+
+    private void addToCard(Game game, Card card) {
+        for (Ability ability : abilities) {
+            game.getState().addOtherAbility(card, ability);
+        }
+    }
+
     private void gainAll(Game game, Ability source, Permanent permanent) {
         for (Ability ability : abilities) {
-            permanent.addAbility(ability, source.getSourceId(), game);
-            afterGain(game, source, permanent, ability);
+            // afterGain must see the permanent's own copy: mutating the template here would leak
+            // into every later application (and into every other permanent this effect touches)
+            Ability addedAbility = permanent.addAbility(ability, source.getSourceId(), game);
+            if (addedAbility != null) {
+                afterGain(game, source, permanent, addedAbility);
+            }
         }
     }
 
@@ -363,48 +398,24 @@ public class BoostGainAbilityGenericEffect extends ContinuousEffectImpl {
     // ---------------------------------------------------------------- rules text
 
     /**
-     * Whether a filter message needs " you control" appended to it. The two readings are not
-     * interchangeable: "Skeletons you control and other Zombies" must gain the suffix because its
-     * trailing noun has no controller, while "Permanents you control with counters on them" must not.
+     * The "other " prefix for an effect that excludes its own source. A message that already names
+     * a single permanent ("each ...") or a whole group ("all ...") reads correctly without it.
      */
-    public enum ControlSuffix {
-        /** Never append; the filter message stands on its own. */
-        NONE,
-        /** Append unless the message already ends with it, or carries a "you control that's" clause. */
-        UNLESS_TRAILING,
-        /** Append only when the message never mentions "you control" at all. */
-        UNLESS_MENTIONED
+    protected static String withOtherPrefix(String message, boolean excludeSource) {
+        String lower = message.toLowerCase(Locale.ENGLISH);
+        if (!excludeSource || lower.startsWith("each") || lower.startsWith("all ")) {
+            return message;
+        }
+        return "other " + message;
     }
 
     /**
-     * Builds the target description for an effect that acts on every permanent matching a filter,
-     * as "other creatures you control". An "each ..." filter already names a single permanent, so
-     * it never takes the "other " prefix.
+     * Names the controller for an effect that only acts on permanents you control. A filter whose
+     * message already says so anywhere -- "creatures you control with flying", or Death Baron's
+     * "Skeletons you control and other Zombies you control" -- is left alone.
      */
-    public static String describeFiltered(FilterPermanent filter, boolean excludeSource, ControlSuffix controlSuffix) {
-        String message = filter.getMessage();
-        String lower = message.toLowerCase(Locale.ENGLISH);
-        StringBuilder sb = new StringBuilder();
-        if (excludeSource && !lower.startsWith("each")
-                && !(controlSuffix != ControlSuffix.NONE && lower.startsWith("all "))) {
-            sb.append("other ");
-        }
-        sb.append(message);
-        if (needsControlSuffix(message, controlSuffix)) {
-            sb.append(" you control");
-        }
-        return sb.toString();
-    }
-
-    private static boolean needsControlSuffix(String message, ControlSuffix controlSuffix) {
-        switch (controlSuffix) {
-            case UNLESS_TRAILING:
-                return !message.endsWith("you control") && !message.contains("you control that's");
-            case UNLESS_MENTIONED:
-                return !message.contains("you control");
-            default:
-                return false;
-        }
+    protected static String withYouControl(String message) {
+        return message.contains("you control") ? message : message + " you control";
     }
 
     /**
@@ -448,7 +459,15 @@ public class BoostGainAbilityGenericEffect extends ContinuousEffectImpl {
             sb.append(' ').append(duration);
         }
         if (hasBoost()) {
-            sb.append(boostMessage());
+            // the "for each ..." / ", where X is ..." tail of a dynamic boost always comes last
+            String message = power.getMessage();
+            if (message.isEmpty()) {
+                message = toughness.getMessage();
+            }
+            if (!message.isEmpty()) {
+                sb.append(CardUtil.getBoostCountAsStr(power, toughness).contains("X") ? ", where X is " : " for each ");
+                sb.append(message);
+            }
         }
         return sb.toString();
     }
@@ -468,6 +487,10 @@ public class BoostGainAbilityGenericEffect extends ContinuousEffectImpl {
         return verb + CardUtil.getBoostCountAsStr(power, toughness);
     }
 
+    /**
+     * The "gains a, b, and c" clause. Multi-word abilities are quoted and capitalised, single
+     * keywords are lower-cased. Never cached: some cards change their granted abilities mid-game.
+     */
     private String abilitiesPart(Mode mode) {
         if (!hasAbilities()) {
             return null;
@@ -479,32 +502,8 @@ public class BoostGainAbilityGenericEffect extends ContinuousEffectImpl {
         } else {
             verb = plural ? " gain " : " gains ";
         }
-        return verb + getMultiRule();
-    }
-
-    /**
-     * The "for each ..." / ", where X is ..." tail of a dynamic boost, which always comes last.
-     */
-    private String boostMessage() {
-        String message = power.getMessage();
-        if (message.isEmpty()) {
-            message = toughness.getMessage();
-        }
-        if (message.isEmpty()) {
-            return "";
-        }
-        return (CardUtil.getBoostCountAsStr(power, toughness).contains("X") ? ", where X is " : " for each ") + message;
-    }
-
-    /**
-     * The granted abilities as "a", "a and b" or "a, b, and c". Multi-word abilities are quoted and
-     * capitalised, single keywords are lower-cased. The decision is made on the ability name with its
-     * reminder text removed, since CardUtil.stripReminderText only strips the "<i>(...)</i>" spelling
-     * and an ability written "(<i>...</i>)" would otherwise look like a whole activated ability.
-     */
-    private String getMultiRule() {
         if (abilitiesRuleText != null) {
-            return abilitiesRuleText;
+            return verb + abilitiesRuleText;
         }
 
         List<String> rules = new ArrayList<>();
@@ -512,29 +511,13 @@ public class BoostGainAbilityGenericEffect extends ContinuousEffectImpl {
             String rule = targetObjectName == null
                     ? CardUtil.stripReminderText(ability.getRule())
                     : CardUtil.stripReminderText(ability.getRule("this " + targetObjectName));
-            String bare = rule.replaceAll("(?is)\\s*\\(?<i>.*?</i>\\)?", "").trim();
-            if ((bare.length() - bare.replace(" ", "").length() >= 2) && !bare.startsWith("protection from")) {
+            // three words or more reads as a sentence of rules text, so it gets quoted
+            if (rule.length() - rule.replace(" ", "").length() >= 2 && !rule.startsWith("protection from")) {
                 rules.add('"' + CardUtil.getTextWithFirstCharUpperCase(rule) + '"');
             } else {
                 rules.add(CardUtil.getTextWithFirstCharLowerCase(rule));
             }
         }
-
-        StringBuilder sb = new StringBuilder();
-        for (int index = 0; index < rules.size(); index++) {
-            if (index > 0) {
-                if (index < rules.size() - 1) {
-                    sb.append(", ");
-                } else if (rules.size() > 2) {
-                    sb.append(", and ");
-                } else {
-                    sb.append(" and ");
-                }
-            }
-            sb.append(rules.get(index));
-        }
-
-        // we can't simply cache it as some cards may change abilities dynamically
-        return sb.toString();
+        return verb + CardUtil.concatWithAnd(rules);
     }
 }

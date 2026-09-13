@@ -38,7 +38,7 @@ public final class ElvishChampion extends CardImpl {
         // Other Elf creatures get +1/+1 and have forestwalk. (They can't be blocked as long as defending player controls a Forest.)
         this.addAbility(new SimpleStaticAbility(new BoostGainAbilityGenericEffect(
                 1, 1, Duration.WhileOnBattlefield, new ForestwalkAbility()
-        ).setTargetPointer(new FilterAllPermanentsTargetPointer(filter, false))));
+        ).setTargetPointer(new FilterAllPermanentsTargetPointer(filter))));
     }
 
     private ElvishChampion(final ElvishChampion card) {

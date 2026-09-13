@@ -29,10 +29,8 @@ public class GainAbilityAllEffect extends GainAbilityTargetEffect {
         if (excludeSource) {
             filterCopy.add(AnotherPredicate.instance);
         }
-        this.setTargetPointer(new FilterAllPermanentsTargetPointer(filterCopy,
-                duration != Duration.WhileOnBattlefield && duration != Duration.EndOfGame));
-        this.getTargetPointer().setTargetDescription(
-                describeFiltered(filter, excludeSource, ControlSuffix.NONE));
+        filterCopy.setMessage(withOtherPrefix(filter.getMessage(), excludeSource));
+        this.setTargetPointer(new FilterAllPermanentsTargetPointer(filterCopy));
 
         this.generateGainAbilityDependencies(ability, filter);
     }

@@ -162,7 +162,8 @@ public class ProtectionAbility extends StaticAbility {
         return filter;
     }
 
-    public ProtectionAbility setFilter(FilterCard filter) {
+    // the field and the constructor both take a plain Filter, so the setter must too
+    public ProtectionAbility setFilter(Filter filter) {
         this.filter = filter;
         return this;
     }

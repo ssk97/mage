@@ -27,7 +27,7 @@ public final class TitanicUltimatum extends CardImpl {
                 5, 5, Duration.EndOfTurn,
                 FirstStrikeAbility.getInstance(), TrampleAbility.getInstance(), LifelinkAbility.getInstance()
         ).withDurationRuleAtStart(true).setTargetPointer(new FilterAllPermanentsTargetPointer(
-                StaticFilters.FILTER_CONTROLLED_CREATURES, true)));
+                StaticFilters.FILTER_CONTROLLED_CREATURES)));
     }
 
     private TitanicUltimatum(final TitanicUltimatum card) {

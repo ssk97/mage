@@ -37,12 +37,12 @@ public class BoostControlledEffect extends BoostAllEffect {
     public BoostControlledEffect(DynamicValue power, DynamicValue toughness, Duration duration, FilterPermanent filter, boolean excludeSource) {
         super(power, toughness, duration);
         FilterPermanent filterCopy = filter.copy();
-        if (excludeSource){
+        if (excludeSource) {
             filterCopy.add(AnotherPredicate.instance);
         }
         filterCopy.add(TargetController.YOU.getControllerPredicate());
-        this.setTargetPointer(new FilterAllPermanentsTargetPointer(filterCopy, duration != Duration.WhileOnBattlefield && duration != Duration.EndOfGame));
-        this.getTargetPointer().setTargetDescription(describeFiltered(filter, excludeSource, ControlSuffix.UNLESS_TRAILING));
+        filterCopy.setMessage(withYouControl(withOtherPrefix(filter.getMessage(), excludeSource)));
+        this.setTargetPointer(new FilterAllPermanentsTargetPointer(filterCopy));
     }
 
     protected BoostControlledEffect(final BoostControlledEffect effect) {

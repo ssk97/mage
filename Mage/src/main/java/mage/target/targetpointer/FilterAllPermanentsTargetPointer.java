@@ -7,30 +7,45 @@ import mage.game.Game;
 import mage.game.permanent.Permanent;
 import mage.target.Targets;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class FilterAllPermanentsTargetPointer extends TargetPointerImpl {
     private final FilterPermanent filter;
-    private final boolean fixTargets;
+    private boolean fixTargets; // set from the source ability at init, see setFixTargets
     private List<MageObjectReference> affectedObjectList = null;
 
     /**
-     * Target pointer that always "targets" all permanents that match the given filter
+     * Target pointer that always "targets" all permanents that match the given filter. The filter's
+     * message becomes the target description, so give it the wording the rules text needs.
      */
-    public FilterAllPermanentsTargetPointer(FilterPermanent filter, boolean fixTargets) {
+    public FilterAllPermanentsTargetPointer(FilterPermanent filter) {
         super();
         this.filter = filter;
-        this.fixTargets = fixTargets;
         setTargetDescription(filter.getMessage());
     }
     public FilterAllPermanentsTargetPointer(final FilterAllPermanentsTargetPointer other) {
         super(other);
         this.filter = other.filter;
         this.fixTargets = other.fixTargets;
+        // the fixed set must survive a copy, otherwise the copy re-derives it from the
+        // current battlefield and the "targets are locked in" contract is broken
+        this.affectedObjectList = other.affectedObjectList == null
+                ? null
+                : new ArrayList<>(other.affectedObjectList);
     }
 
+
+    /**
+     * Whether the affected set is locked in follows from the source ability (611.2c), which the
+     * constructor cannot see. The owning effect calls this from its own init; the constructor value
+     * is only what applies until then.
+     */
+    public void setFixTargets(boolean fixTargets) {
+        this.fixTargets = fixTargets;
+    }
 
     @Override
     public void init(Game game, Ability source) {

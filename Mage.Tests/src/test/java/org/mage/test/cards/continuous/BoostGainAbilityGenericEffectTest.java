@@ -1,20 +1,26 @@
 package org.mage.test.cards.continuous;
 
+import mage.abilities.keyword.ExaltedAbility;
 import mage.abilities.keyword.FirstStrikeAbility;
+import mage.abilities.keyword.FlyingAbility;
 import mage.abilities.keyword.ForestwalkAbility;
 import mage.abilities.keyword.HasteAbility;
 import mage.abilities.keyword.LifelinkAbility;
 import mage.abilities.keyword.TrampleAbility;
 import mage.constants.PhaseStep;
+import mage.constants.Planes;
 import mage.constants.Zone;
+import mage.game.command.emblems.DomriRadeEmblem;
+import mage.game.command.emblems.ElspethSunsChampionEmblem;
 import org.junit.Test;
 import org.mage.test.serverside.base.CardTestPlayerBase;
 
 /**
  * Cards converted to BoostGainAbilityGenericEffect, which applies a boost in layer 7 and grants
- * abilities in layer 6 from a single effect. One case per target pointer shape.
+ * abilities in layer 6 from a single effect. One case per target pointer shape, plus the cases
+ * that decide *which* objects an effect reaches and *what* it grants them.
  *
- * @author notgreat
+ * @author notgreat, code-review
  */
 public class BoostGainAbilityGenericEffectTest extends CardTestPlayerBase {
 
@@ -158,5 +164,196 @@ public class BoostGainAbilityGenericEffectTest extends CardTestPlayerBase {
         assertAbility(playerA, "Silvercoat Lion", TrampleAbility.getInstance(), true);
         assertPowerToughness(playerA, "Craterhoof Behemoth", 7, 7);
         assertAbility(playerA, "Craterhoof Behemoth", HasteAbility.getInstance(), true);
+    }
+
+    // ------------------------------------------------------------------ which objects are reached
+
+    /**
+     * Briar Shield: "Sacrifice Briar Shield: Enchanted creature gets +3/+3 until end of turn."
+     * The Aura is gone by the time the ability resolves, so the attachment lives only in LKI.
+     */
+    @Test
+    public void testAttachedSourceSacrificedAsACost() {
+        addCard(Zone.BATTLEFIELD, playerA, "Forest", 1);
+        addCard(Zone.BATTLEFIELD, playerA, "Silvercoat Lion"); // 2/2
+        addCard(Zone.HAND, playerA, "Briar Shield");
+
+        castSpell(1, PhaseStep.PRECOMBAT_MAIN, playerA, "Briar Shield", "Silvercoat Lion");
+        waitStackResolved(1, PhaseStep.PRECOMBAT_MAIN);
+        checkPT("aura attached", 1, PhaseStep.PRECOMBAT_MAIN, playerA, "Silvercoat Lion", 3, 3);
+        activateAbility(1, PhaseStep.PRECOMBAT_MAIN, playerA, "Sacrifice {this}");
+
+        setStrictChooseMode(true);
+        setStopAt(1, PhaseStep.BEGIN_COMBAT);
+        execute();
+
+        assertGraveyardCount(playerA, "Briar Shield", 1);
+        // base 2/2 plus the +3/+3; the static +1/+1 leaves with the Aura
+        assertPowerToughness(playerA, "Silvercoat Lion", 5, 5);
+    }
+
+    /**
+     * Mutual Destruction: "This spell has flash as long as you control a permanent with flash."
+     * The grant lands on the card itself, which is never a permanent.
+     */
+    @Test
+    public void testGrantToSourceCard() {
+        addCard(Zone.BATTLEFIELD, playerA, "Swamp", 1);
+        addCard(Zone.BATTLEFIELD, playerA, "Ambush Viper");     // permanent with flash
+        addCard(Zone.BATTLEFIELD, playerA, "Silvercoat Lion");  // additional cost
+        addCard(Zone.HAND, playerA, "Mutual Destruction");
+        addCard(Zone.BATTLEFIELD, playerB, "Grizzly Bears");
+
+        // playerB's turn -- only possible if the sorcery has flash
+        castSpell(2, PhaseStep.PRECOMBAT_MAIN, playerA, "Mutual Destruction", "Grizzly Bears");
+        setChoice(playerA, "Silvercoat Lion"); // sacrifice
+
+        setStrictChooseMode(true);
+        setStopAt(2, PhaseStep.END_TURN);
+        execute();
+
+        assertGraveyardCount(playerA, "Mutual Destruction", 1);
+        assertGraveyardCount(playerB, "Grizzly Bears", 1);
+    }
+
+    /**
+     * Emblem Elspeth: "Creatures you control get +2/+2 and have flying."
+     * Duration.EndOfGame is not a locked-in set, so a creature cast later gets both halves.
+     */
+    @Test
+    public void testEmblemReachesLaterCreature() {
+        addEmblem(playerA, new ElspethSunsChampionEmblem());
+        addCard(Zone.BATTLEFIELD, playerA, "Grizzly Bears"); // already out
+        addCard(Zone.BATTLEFIELD, playerA, "Plains", 2);
+        addCard(Zone.HAND, playerA, "Silvercoat Lion");      // enters later
+
+        castSpell(1, PhaseStep.PRECOMBAT_MAIN, playerA, "Silvercoat Lion");
+
+        setStrictChooseMode(true);
+        setStopAt(1, PhaseStep.BEGIN_COMBAT);
+        execute();
+
+        assertPowerToughness(playerA, "Grizzly Bears", 4, 4);
+        assertAbility(playerA, "Grizzly Bears", FlyingAbility.getInstance(), true);
+        assertPowerToughness(playerA, "Silvercoat Lion", 4, 4);
+        assertAbility(playerA, "Silvercoat Lion", FlyingAbility.getInstance(), true);
+    }
+
+    /**
+     * Emblem Domri: "Creatures you control have double strike, trample, hexproof, and haste."
+     * A grant-only emblem, where nothing but the ability half can show the bug.
+     */
+    @Test
+    public void testGrantOnlyEmblemReachesLaterCreature() {
+        addEmblem(playerA, new DomriRadeEmblem());
+        addCard(Zone.BATTLEFIELD, playerA, "Forest", 2);
+        addCard(Zone.HAND, playerA, "Grizzly Bears");
+
+        castSpell(1, PhaseStep.PRECOMBAT_MAIN, playerA, "Grizzly Bears");
+
+        setStrictChooseMode(true);
+        setStopAt(1, PhaseStep.BEGIN_COMBAT);
+        execute();
+
+        assertAbility(playerA, "Grizzly Bears", HasteAbility.getInstance(), true);
+        assertAbility(playerA, "Grizzly Bears", TrampleAbility.getInstance(), true);
+    }
+
+    /**
+     * Plane - Bant: "All creatures have exalted." A static ability keeps a dynamic set (611.2c)
+     * whatever its duration.
+     */
+    @Test
+    public void testStaticAbilityKeepsDynamicSet() {
+        addPlane(playerA, Planes.PLANE_BANT);
+        addCard(Zone.BATTLEFIELD, playerA, "Grizzly Bears"); // already out
+        addCard(Zone.BATTLEFIELD, playerA, "Plains", 2);
+        addCard(Zone.HAND, playerA, "Silvercoat Lion");      // enters later
+
+        castSpell(1, PhaseStep.PRECOMBAT_MAIN, playerA, "Silvercoat Lion");
+
+        setStrictChooseMode(true);
+        setStopAt(1, PhaseStep.BEGIN_COMBAT);
+        execute();
+
+        assertAbility(playerA, "Grizzly Bears", new ExaltedAbility(), true);
+        assertAbility(playerA, "Silvercoat Lion", new ExaltedAbility(), true);
+    }
+
+    // ------------------------------------------------------------------ what gets granted
+
+    /**
+     * Grothama, All-Devouring: other creatures gain "Whenever this creature attacks, you may have
+     * it fight Grothama, All-Devouring." The granted ability can only be built at apply time.
+     */
+    @Test
+    public void testGrantedAbilityBuiltFromRuntimeState() {
+        addCard(Zone.BATTLEFIELD, playerA, "Grizzly Bears");
+        addCard(Zone.BATTLEFIELD, playerB, "Grothama, All-Devouring"); // 10/8
+
+        attack(1, playerA, "Grizzly Bears");
+        setChoice(playerA, true); // "you may have it fight"
+
+        setStrictChooseMode(true);
+        setStopAt(1, PhaseStep.END_TURN);
+        execute();
+
+        // the fight happens on the attack trigger, so the Bears never deal combat damage
+        assertGraveyardCount(playerA, "Grizzly Bears", 1);
+        assertLife(playerB, 20);
+    }
+
+    /**
+     * Thran Weaponry: "{2}, {T}: All creatures get +2/+2 for as long as Thran Weaponry remains
+     * tapped." 611.2b -- once the condition breaks the effect is over, it does not come back.
+     */
+    @Test
+    public void testForAsLongAsEndsForGood() {
+        addCard(Zone.BATTLEFIELD, playerA, "Mountain", 9); // echo {4} + {2} + {1} + {2}
+        addCard(Zone.BATTLEFIELD, playerA, "Thran Weaponry");
+        addCard(Zone.BATTLEFIELD, playerA, "Voltaic Key");
+        addCard(Zone.BATTLEFIELD, playerA, "Grizzly Bears");
+
+        setChoice(playerA, true); // pay the {4} echo cost to keep Thran Weaponry around
+
+        activateAbility(1, PhaseStep.PRECOMBAT_MAIN, playerA, "{2}, {T}: All creatures get +2/+2");
+        waitStackResolved(1, PhaseStep.PRECOMBAT_MAIN);
+        checkPT("boosted while tapped", 1, PhaseStep.PRECOMBAT_MAIN, playerA, "Grizzly Bears", 4, 4);
+        activateAbility(1, PhaseStep.PRECOMBAT_MAIN, playerA, "{1}, {T}: Untap target artifact", "Thran Weaponry");
+        waitStackResolved(1, PhaseStep.PRECOMBAT_MAIN);
+        checkPT("boost gone once untapped", 1, PhaseStep.PRECOMBAT_MAIN, playerA, "Grizzly Bears", 2, 2);
+
+        activateAbility(1, PhaseStep.POSTCOMBAT_MAIN, playerA, "{2}, {T}: All creatures get +2/+2");
+
+        setStrictChooseMode(true);
+        setStopAt(1, PhaseStep.END_TURN);
+        execute();
+
+        assertPowerToughness(playerA, "Grizzly Bears", 2 + 2, 2 + 2); // the second activation, not both
+    }
+
+    /**
+     * Knight of Dawn: "{W}{W}: Knight of Dawn gains protection from the color of your choice until
+     * end of turn." The granted ability must never be seen carrying an empty (match-everything)
+     * filter, which would strip legal Auras as a state-based action.
+     */
+    @Test
+    public void testGrantedProtectionNeverMatchesEverything() {
+        addCard(Zone.BATTLEFIELD, playerA, "Plains", 2);
+        addCard(Zone.BATTLEFIELD, playerA, "Swamp", 1);
+        addCard(Zone.BATTLEFIELD, playerA, "Knight of Dawn");
+        addCard(Zone.HAND, playerA, "Unholy Strength"); // black Aura, +2/+1
+
+        castSpell(1, PhaseStep.PRECOMBAT_MAIN, playerA, "Unholy Strength", "Knight of Dawn");
+        waitStackResolved(1, PhaseStep.PRECOMBAT_MAIN);
+        activateAbility(1, PhaseStep.PRECOMBAT_MAIN, playerA, "{W}{W}: ");
+        setChoice(playerA, "Blue");
+
+        setStrictChooseMode(true);
+        setStopAt(1, PhaseStep.BEGIN_COMBAT);
+        execute();
+
+        assertPermanentCount(playerA, "Unholy Strength", 1);
+        assertPowerToughness(playerA, "Knight of Dawn", 4, 3);
     }
 }

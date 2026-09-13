@@ -10,7 +10,6 @@ import mage.cards.CardImpl;
 import mage.cards.CardSetInfo;
 import mage.constants.*;
 import mage.filter.FilterPermanent;
-import mage.filter.common.FilterControlledCreaturePermanent;
 import mage.filter.common.FilterCreaturePermanent;
 import mage.filter.predicate.ObjectSourcePlayer;
 import mage.filter.predicate.ObjectSourcePlayerPredicate;
@@ -26,8 +25,8 @@ import java.util.UUID;
 public final class KondasBanner extends CardImpl {
 
     private static final FilterPermanent legendaryFilter = new FilterCreaturePermanent("legendary creature");
-    private static final FilterPermanent colorFilter = new FilterControlledCreaturePermanent("Creatures that share a color with equipped creature");
-    private static final FilterPermanent typeFilter = new FilterControlledCreaturePermanent("Creatures that share a creature type with equipped creature");
+    private static final FilterPermanent colorFilter = new FilterCreaturePermanent("Creatures that share a color with equipped creature");
+    private static final FilterPermanent typeFilter = new FilterCreaturePermanent("Creatures that share a creature type with equipped creature");
 
     static {
         legendaryFilter.add(SuperType.LEGENDARY.getPredicate());

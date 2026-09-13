@@ -74,7 +74,7 @@ class TorrentOfLavaGainAbilityEffect extends GainAbilityAllEffect {
     }
 
     @Override
-    public boolean apply(Game game, Ability source) {
+    protected boolean prepareAbilities(Game game, Ability source) {
         Spell spell = game.getStack().getSpell(source.getSourceId());
         if (spell == null) {
             return false;
@@ -87,7 +87,7 @@ class TorrentOfLavaGainAbilityEffect extends GainAbilityAllEffect {
                 + GameLog.getColoredObjectIdNameForTooltip(spell.getColor(game), idName) + " this turn");
 
         setGrantedAbilities(new SimpleActivatedAbility(effect, new TapSourceCost()));
-        return super.apply(game, source);
+        return true;
     }
 
     @Override

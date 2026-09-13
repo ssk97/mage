@@ -37,7 +37,7 @@ public final class CraterhoofBehemoth extends CardImpl {
                 CreaturesYouControlCount.PLURAL, CreaturesYouControlCount.PLURAL,
                 Duration.EndOfTurn, TrampleAbility.getInstance()
         ).withAbilitiesFirst(true).setTargetPointer(new FilterAllPermanentsTargetPointer(
-                StaticFilters.FILTER_CONTROLLED_CREATURES, true)
+                StaticFilters.FILTER_CONTROLLED_CREATURES)
         ).setText("creatures you control gain trample and get +X/+X until end of turn, "
                 + "where X is the number of creatures you control"));
         ability.addHint(CreaturesYouControlHint.instance);

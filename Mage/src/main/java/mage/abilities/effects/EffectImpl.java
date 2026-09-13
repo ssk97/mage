@@ -97,7 +97,10 @@ public abstract class EffectImpl implements Effect {
         if (this.targetPointer.isSpecial() && !targetPointer.isSpecial()) {
             return this;
         }
-        if (this.targetPointer.getTargetDescription() != null) {
+        // carry the old description over only when the replacement does not bring its own,
+        // otherwise a pointer installed by a superclass constructor would win over the subclass's
+        if (this.targetPointer.getTargetDescription() != null
+                && targetPointer.getTargetDescription() == null) {
             targetPointer.setTargetDescription(this.targetPointer.getTargetDescription());
         }
         this.targetPointer = targetPointer;

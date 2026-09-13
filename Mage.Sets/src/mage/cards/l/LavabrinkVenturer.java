@@ -69,16 +69,22 @@ class LavabrinkVenturerEffect extends GainAbilitySourceEffect {
 
     @Override
     public void afterGain(Game game, Ability source, Permanent permanent, Ability addedAbility) {
-        //TODO: CHECK
-        if (addedAbility instanceof ProtectionAbility) {
-            if (ModeChoice.ODD.checkMode(game, source)) {
-                ((ProtectionAbility)addedAbility).getFilter().add(ManaValueParityPredicate.ODD);
-                ((ProtectionAbility)addedAbility).getFilter().setMessage("odd mana values");
-            } else if (ModeChoice.EVEN.checkMode(game, source)) {
-                ((ProtectionAbility)addedAbility).getFilter().add(ManaValueParityPredicate.EVEN);
-                ((ProtectionAbility)addedAbility).getFilter().setMessage("even mana values");
-            }
+        if (!(addedAbility instanceof ProtectionAbility)) {
+            return;
         }
+        // the ability is built from nullFilter, which carries ODD *and* EVEN so that it matches
+        // nothing until a mode is chosen -- so the filter has to be replaced, never added to
+        if (ModeChoice.ODD.checkMode(game, source)) {
+            ((ProtectionAbility) addedAbility).setFilter(parityFilter(ManaValueParityPredicate.ODD, "odd mana values"));
+        } else if (ModeChoice.EVEN.checkMode(game, source)) {
+            ((ProtectionAbility) addedAbility).setFilter(parityFilter(ManaValueParityPredicate.EVEN, "even mana values"));
+        }
+    }
+
+    private static FilterObject parityFilter(ManaValueParityPredicate parity, String message) {
+        FilterObject filter = new FilterObject(message);
+        filter.add(parity);
+        return filter;
     }
 
     @Override

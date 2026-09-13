@@ -83,7 +83,7 @@ class GrothamaAllDevouringGainAbilityEffect extends GainAbilityAllEffect {
     }
 
     @Override
-    public boolean apply(Game game, Ability source) {
+    protected boolean prepareAbilities(Game game, Ability source) {
         Permanent permanent = game.getPermanent(source.getSourceId());
         if (permanent == null) {
             return false;
@@ -91,7 +91,7 @@ class GrothamaAllDevouringGainAbilityEffect extends GainAbilityAllEffect {
         setGrantedAbilities(new AttacksTriggeredAbility(
                 new GrothamaAllDevouringFightEffect(permanent.getId(), permanent.getName()), true
         ));
-        return super.apply(game, source);
+        return true;
     }
 }
 
