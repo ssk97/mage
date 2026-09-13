@@ -346,15 +346,10 @@ public class BoostGainAbilityGenericEffect extends ContinuousEffectImpl {
     }
 
     /**
-     * Calls after ability gain. Override it to apply additional data (example: transfer ability's settings from original to destination source)
-     *
-     * @param game
-     * @param source
-     * @param permanent
-     * @param addedAbility
+     * Called after an ability is gained, to apply data that only makes sense on the permanent that
+     * received it (example: transfer the ability's settings from the original source).
      */
     public void afterGain(Game game, Ability source, Permanent permanent, Ability addedAbility) {
-        //
     }
 
     public BoostGainAbilityGenericEffect withDurationRuleAtStart(boolean durationRuleAtStart) {

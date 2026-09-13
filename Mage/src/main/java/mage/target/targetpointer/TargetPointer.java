@@ -70,8 +70,7 @@ public interface TargetPointer extends Serializable, Copyable<TargetPointer> {
     }
 
     /**
-     * Special target pointers can't be overridden once set
-     * @return
+     * Special target pointers can't be overridden once set.
      */
     default boolean isSpecial() {return false;}
 

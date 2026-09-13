@@ -64,15 +64,6 @@ public class SourceTargetPointer extends TargetPointerImpl {
         setInitialized();
     }
 
-    /**
-     * This returns a list of the targetIds (but only if the targets are still
-     * have the same zoneChangeCounter). So if the target has changed zone
-     * meanwhile there is no id returned for this target and the list is empty.
-     *
-     * @param game
-     * @param source
-     * @return
-     */
     @Override
     public List<UUID> getTargets(Game game, Ability source) {
         Permanent permanent = (mor == null) ? source.getSourcePermanentIfItStillExists(game) : mor.getPermanent(game);
