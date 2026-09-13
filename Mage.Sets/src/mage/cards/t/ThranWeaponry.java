@@ -32,8 +32,8 @@ public final class ThranWeaponry extends CardImpl {
         this.addAbility(new SkipUntapOptionalAbility());
 
         // {2}, {tap}: All creatures get +2/+2 for as long as Thran Weaponry remains tapped.
-        // Duration.Custom makes ConditionalContinuousEffect discard the effect once the condition
-        // turns false, so the boost ends for good rather than returning if it is tapped again.
+        // 611.2b: Duration.Custom makes the decorator discard the effect once the condition turns
+        // false, so the boost does not come back if it is tapped again.
         Ability ability = new SimpleActivatedAbility(new ConditionalContinuousEffect(
                 new BoostAllEffect(2, 2, Duration.Custom),
                 SourceTappedCondition.TAPPED,

@@ -30,8 +30,7 @@ public class FilterAllPermanentsTargetPointer extends TargetPointerImpl {
         super(other);
         this.filter = other.filter;
         this.fixTargets = other.fixTargets;
-        // the fixed set must survive a copy, otherwise the copy re-derives it from the
-        // current battlefield and the "targets are locked in" contract is broken
+        // a copy that re-derived this would break the "targets are locked in" contract
         this.affectedObjectList = other.affectedObjectList == null
                 ? null
                 : new ArrayList<>(other.affectedObjectList);
@@ -40,8 +39,7 @@ public class FilterAllPermanentsTargetPointer extends TargetPointerImpl {
 
     /**
      * Whether the affected set is locked in follows from the source ability (611.2c), which the
-     * constructor cannot see. The owning effect calls this from its own init; the constructor value
-     * is only what applies until then.
+     * constructor cannot see, so the owning effect calls this from its own init.
      */
     public void setFixTargets(boolean fixTargets) {
         this.fixTargets = fixTargets;

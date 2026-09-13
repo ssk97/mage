@@ -109,8 +109,8 @@ public class BoostGainAbilityGenericEffect extends ContinuousEffectImpl {
         return !abilities.isEmpty();
     }
 
-    // A single active half keeps the layer it always had, so the restricted subclasses are unchanged.
-    // With both halves the layer stays null and hasLayer/apply(Layer, ...) do the dispatching.
+    // With both halves active there is no single layer, so layer stays null and the dispatching
+    // moves to hasLayer/apply(Layer, ...).
     private static Layer layerOf(DynamicValue power, Ability... abilities) {
         if (abilities.length == 0) {
             return Layer.PTChangingEffects_7;
@@ -179,26 +179,24 @@ public class BoostGainAbilityGenericEffect extends ContinuousEffectImpl {
     public void init(Ability source, Game game) {
         super.init(source, game);
 
-        // 611.2c: whether the affected set is locked in depends on the source ability, not on the
-        // duration, so this is the earliest point at which the target pointer can be told
+        // 611.2c: the source ability decides whether the affected set is locked in, so this is the
+        // earliest the pointer can be told
         if (getTargetPointer() instanceof FilterAllPermanentsTargetPointer) {
             ((FilterAllPermanentsTargetPointer) getTargetPointer())
                     .setFixTargets(getAffectedObjectsSetAtInit(source));
         }
 
-        // must support dynamic targets from static ability and static targets from activated abilities
         if (!getAffectedObjectsSet()) {
             return;
         }
         if (hasBoost()) {
-            // Boost must be locked in (if it's a dynamic value) for non-static ability
+            // a dynamic boost is locked in at resolution
             power = StaticValue.get(power.calculate(game, source, this));
             toughness = StaticValue.get(toughness.calculate(game, source, this));
         }
 
-        // Permanents need no snapshot here: the target pointer already locks its own set in when the
-        // source ability calls for it. Only the card hand-off below has to remember what it started
-        // from, because the card it points at becomes a different object once it resolves.
+        // Only the card hand-off needs a snapshot: the pointer locks permanents in by itself, but
+        // the card it points at becomes a different object once it resolves.
         if (hasAbilities() && this.useOnCard) {
             getTargetPointer().getTargets(game, source)
                     .stream()
@@ -289,7 +287,6 @@ public class BoostGainAbilityGenericEffect extends ContinuousEffectImpl {
         for (Iterator<MageObjectReference> it = affectedObjectList.iterator(); it.hasNext(); ) {
             MageObjectReference mor = it.next();
 
-            // look for permanent
             Permanent permanent = mor.getPermanent(game);
             if (permanent != null) {
                 this.waitingCardPermanent = false;
@@ -298,7 +295,6 @@ public class BoostGainAbilityGenericEffect extends ContinuousEffectImpl {
                 continue;
             }
 
-            // look for card with linked permanent
             Card card = mor.getCard(game);
             if (card != null) {
                 addToCard(game, card);
@@ -306,7 +302,6 @@ public class BoostGainAbilityGenericEffect extends ContinuousEffectImpl {
                 continue;
             }
 
-            // start waiting a spell's permanent
             Permanent perm = game.getPermanent(mor.getSourceId());
             if (perm != null) {
                 gainAll(game, source, perm);
@@ -314,22 +309,19 @@ public class BoostGainAbilityGenericEffect extends ContinuousEffectImpl {
                 newWaitingPermanents.add(new MageObjectReference(perm, game));
                 this.waitingCardPermanent = false;
             }
-            // bad target, can be removed
             it.remove();
         }
 
-        // add new linked permanents to targets
         if (!newWaitingPermanents.isEmpty()) {
             this.affectedObjectList.addAll(newWaitingPermanents);
             return affectedTargets > 0;
         }
 
-        // no more valid targets
         if (this.affectedObjectList.isEmpty()) {
             discard();
         }
 
-        // no more valid permanents (card was countered without new permanent)
+        // the card was countered, so no permanent is coming
         if (duration == Duration.Custom && affectedTargets == 0 && !this.waitingCardPermanent) {
             discard();
         }
@@ -344,8 +336,8 @@ public class BoostGainAbilityGenericEffect extends ContinuousEffectImpl {
 
     private void gainAll(Game game, Ability source, Permanent permanent) {
         for (Ability ability : abilities) {
-            // afterGain must see the permanent's own copy: mutating the template here would leak
-            // into every later application (and into every other permanent this effect touches)
+            // afterGain gets the permanent's own copy; mutating the template would leak into every
+            // later application and every other permanent this effect touches
             Ability addedAbility = permanent.addAbility(ability, source.getSourceId(), game);
             if (addedAbility != null) {
                 afterGain(game, source, permanent, addedAbility);

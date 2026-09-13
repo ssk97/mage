@@ -72,8 +72,8 @@ class LavabrinkVenturerEffect extends GainAbilitySourceEffect {
         if (!(addedAbility instanceof ProtectionAbility)) {
             return;
         }
-        // the ability is built from nullFilter, which carries ODD *and* EVEN so that it matches
-        // nothing until a mode is chosen -- so the filter has to be replaced, never added to
+        // nullFilter carries ODD *and* EVEN so that it matches nothing until a mode is chosen,
+        // so the filter has to be replaced rather than added to
         if (ModeChoice.ODD.checkMode(game, source)) {
             ((ProtectionAbility) addedAbility).setFilter(parityFilter(ManaValueParityPredicate.ODD, "odd mana values"));
         } else if (ModeChoice.EVEN.checkMode(game, source)) {

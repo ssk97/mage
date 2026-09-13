@@ -34,9 +34,8 @@ public class SourceAttachedTargetPointer extends TargetPointerImpl {
         if (isInitialized()) {
             return;
         }
-        // A fixed attachment must be resolved now, while the source is still findable. An ability
-        // that sacrifices its own Aura/Equipment as a cost has already lost the permanent by the
-        // time it resolves, so the lookup has to fall back to LKI.
+        // An ability that sacrifices its own Aura/Equipment as a cost has already lost the
+        // permanent by the time it resolves, so the attachment is only reachable through LKI.
         if (fixTarget) {
             Permanent attachment = game.getPermanentOrLKIBattlefield(source.getSourceId());
             if (attachment != null && attachment.getAttachedTo() != null) {
