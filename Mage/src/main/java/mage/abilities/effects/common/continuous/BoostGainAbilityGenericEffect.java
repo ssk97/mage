@@ -179,11 +179,11 @@ public class BoostGainAbilityGenericEffect extends ContinuousEffectImpl {
     public void init(Ability source, Game game) {
         super.init(source, game);
 
-        // 611.2c: the source ability decides whether the affected set is locked in, so this is the
-        // earliest the pointer can be told
-        if (getTargetPointer() instanceof FilterAllPermanentsTargetPointer) {
-            ((FilterAllPermanentsTargetPointer) getTargetPointer())
-                    .setFixTargets(getAffectedObjectsSetAtInit(source));
+        // 611.2c: the source ability decides whether the affected set is locked in, and this is the
+        // moment the effect begins
+        if (getTargetPointer() instanceof FilterAllPermanentsTargetPointer
+                && getAffectedObjectsSetAtInit(source)) {
+            ((FilterAllPermanentsTargetPointer) getTargetPointer()).fixTargets(game, source);
         }
 
         if (!getAffectedObjectsSet()) {

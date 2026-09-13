@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 public class FilterAllPermanentsTargetPointer extends TargetPointerImpl {
     private final FilterPermanent filter;
-    private boolean fixTargets; // set from the source ability at init, see setFixTargets
+    // null while the set is still live; holding a list is what makes this pointer a locked-in one
     private List<MageObjectReference> affectedObjectList = null;
 
     /**
@@ -29,7 +29,6 @@ public class FilterAllPermanentsTargetPointer extends TargetPointerImpl {
     public FilterAllPermanentsTargetPointer(final FilterAllPermanentsTargetPointer other) {
         super(other);
         this.filter = other.filter;
-        this.fixTargets = other.fixTargets;
         // a copy that re-derived this would break the "targets are locked in" contract
         this.affectedObjectList = other.affectedObjectList == null
                 ? null
@@ -38,11 +37,16 @@ public class FilterAllPermanentsTargetPointer extends TargetPointerImpl {
 
 
     /**
-     * Whether the affected set is locked in follows from the source ability (611.2c), which the
-     * constructor cannot see, so the owning effect calls this from its own init.
+     * Determines the affected set now and holds it from here on. 611.2c puts that moment at the
+     * point the effect begins, and only the source ability knows whether it applies at all, so the
+     * owning effect calls this from its own init.
      */
-    public void setFixTargets(boolean fixTargets) {
-        this.fixTargets = fixTargets;
+    public void fixTargets(Game game, Ability source) {
+        affectedObjectList = game.getBattlefield()
+                .getActivePermanents(filter, source.getControllerId(), source, game)
+                .stream()
+                .map(permanent -> new MageObjectReference(permanent, game))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -64,17 +68,16 @@ public class FilterAllPermanentsTargetPointer extends TargetPointerImpl {
      */
     @Override
     public List<UUID> getTargets(Game game, Ability source) {
-        if (fixTargets){
-            if (affectedObjectList == null) {
-                affectedObjectList = game.getBattlefield().getActivePermanents(filter, source.getControllerId(), source, game)
-                        .stream().map(x -> new MageObjectReference(x, game)).collect(Collectors.toList());
-            }
-            return affectedObjectList.stream().filter(x -> x.zoneCounterIsCurrent(game))
-                    .map(MageObjectReference::getSourceId).collect(Collectors.toList());
-        } else {
-            return game.getBattlefield().getActivePermanents(filter, source.getControllerId(), source, game)
-                .stream().map(Permanent::getId).collect(Collectors.toList());
+        if (affectedObjectList != null) {
+            return affectedObjectList.stream()
+                    .filter(mor -> mor.zoneCounterIsCurrent(game))
+                    .map(MageObjectReference::getSourceId)
+                    .collect(Collectors.toList());
         }
+        return game.getBattlefield().getActivePermanents(filter, source.getControllerId(), source, game)
+                .stream()
+                .map(Permanent::getId)
+                .collect(Collectors.toList());
     }
 
     @Override
