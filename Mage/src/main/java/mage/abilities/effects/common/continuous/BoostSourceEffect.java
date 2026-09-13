@@ -15,7 +15,7 @@ public class BoostSourceEffect extends BoostGenericEffect {
     }
 
     public BoostSourceEffect(int power, int toughness, Duration duration, String description) {
-        this(StaticValue.get(power), StaticValue.get(toughness), duration, null);
+        this(StaticValue.get(power), StaticValue.get(toughness), duration, description);
     }
     public BoostSourceEffect(DynamicValue power, DynamicValue toughness, Duration duration) {
         this(power, toughness, duration, null);

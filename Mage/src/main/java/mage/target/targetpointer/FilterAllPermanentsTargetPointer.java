@@ -23,12 +23,12 @@ public class FilterAllPermanentsTargetPointer extends TargetPointerImpl {
         super();
         this.filter = filter;
         this.fixTargets = fixTargets;
+        setTargetDescription(filter.getMessage());
     }
     public FilterAllPermanentsTargetPointer(final FilterAllPermanentsTargetPointer other) {
         super(other);
         this.filter = other.filter;
         this.fixTargets = other.fixTargets;
-        setTargetDescription(filter.getMessage());
     }
 
 

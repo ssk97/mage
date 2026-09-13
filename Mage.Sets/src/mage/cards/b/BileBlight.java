@@ -18,6 +18,7 @@ import mage.filter.predicate.mageobject.NamePredicate;
 import mage.game.Game;
 import mage.game.permanent.Permanent;
 import mage.target.common.TargetCreaturePermanent;
+import mage.target.targetpointer.FixedTarget;
 
 import java.util.UUID;
 
@@ -32,7 +33,6 @@ public final class BileBlight extends CardImpl {
 
         // Target creature and all other creatures with the same name as that creature get -3/-3 until end of turn.
         this.getSpellAbility().addEffect(new BileBlightEffect());
-        this.getSpellAbility().addEffect(new BoostTargetEffect(-3, -3).setText(""));
         this.getSpellAbility().addTarget(new TargetCreaturePermanent());
     }
 
@@ -59,11 +59,18 @@ class BileBlightEffect extends OneShotEffect {
     @Override
     public boolean apply(Game game, Ability source) {
         Permanent target = game.getPermanent(getTargetPointer().getFirst(game, source));
+        if (target == null) {
+            return false;
+        }
         FilterPermanent filter = new FilterCreaturePermanent();
         filter.add(new NamePredicate(target.getName()));
-        filter.add(Predicates.not(new MageObjectReferencePredicate(target, game))); //Needed a separate effect in case of empty named target
-        ContinuousEffect effect = new BoostAllEffect(-3, -3, Duration.EndOfTurn, filter);
-        game.addEffect(effect, source);
+        filter.add(Predicates.not(new MageObjectReferencePredicate(target, game)));
+        game.addEffect(new BoostAllEffect(-3, -3, Duration.EndOfTurn, filter), source);
+
+        // separate effect for the target itself, as a creature with an empty name is not matched by the filter
+        ContinuousEffect targetEffect = new BoostTargetEffect(-3, -3);
+        targetEffect.setTargetPointer(new FixedTarget(target, game));
+        game.addEffect(targetEffect, source);
         return true;
     }
 

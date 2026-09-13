@@ -33,7 +33,9 @@ public final class GabrielAngelfire extends CardImpl {
         // At the beginning of your upkeep, choose flying, first strike, trample, or rampage 3. Gabriel Angelfire gains that ability until your next upkeep.
         this.addAbility(new BeginningOfUpkeepTriggeredAbility(new GainsChoiceOfAbilitiesEffect(
                 GainsChoiceOfAbilitiesEffect.TargetType.Source,"{this}", true, Duration.UntilYourNextUpkeepStep,
-                FlyingAbility.getInstance(), FirstStrikeAbility.getInstance(), TrampleAbility.getInstance(), new RampageAbility(3))));
+                FlyingAbility.getInstance(), FirstStrikeAbility.getInstance(), TrampleAbility.getInstance(), new RampageAbility(3)
+        ).setText("choose flying, first strike, trample, or rampage 3. "
+                + "{this} gains that ability until your next upkeep")));
     }
 
     private GabrielAngelfire(final GabrielAngelfire card) {

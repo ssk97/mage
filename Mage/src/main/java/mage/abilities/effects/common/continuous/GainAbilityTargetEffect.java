@@ -65,6 +65,8 @@ public class GainAbilityTargetEffect extends ContinuousEffectImpl {
         this.abilities = effect.abilities.copy(); // See the method's comment, ability.copy() is not enough.
         this.useOnCard = effect.useOnCard;
         this.waitingCardPermanent = effect.waitingCardPermanent;
+        this.targetObjectName = effect.targetObjectName;
+        this.durationRuleAtStart = effect.durationRuleAtStart;
     }
 
     @Override
@@ -211,19 +213,23 @@ public class GainAbilityTargetEffect extends ContinuousEffectImpl {
 
     @Override
     public String getText(Mode mode) {
-        if (staticText != null && !staticText.isEmpty()) {
+        if (staticText != null) {
             return staticText;
         }
         StringBuilder sb = new StringBuilder();
         if (durationRuleAtStart && !duration.toString().isEmpty() && duration != Duration.EndOfGame) {
             sb.append(duration).append(", ");
         }
-        sb.append(getTargetPointer().describeTargets(mode.getTargets(), "it"));
-        if (duration == Duration.WhileOnBattlefield) {
-            sb.append(getTargetPointer().isPlural(mode.getTargets()) ? " has " : " have ");
+        String describedTargets = getTargetPointer().describeTargets(mode.getTargets(), "it");
+        sb.append(describedTargets);
+        boolean plural = BoostGenericEffect.isPluralTarget(getTargetPointer(), mode.getTargets());
+        String verb;
+        if (duration == Duration.WhileOnBattlefield || duration == Duration.EndOfGame) {
+            verb = plural ? " have " : " has ";
         } else {
-            sb.append(getTargetPointer().isPlural(mode.getTargets()) ? " gain " : " gains ");
+            verb = plural ? " gain " : " gains ";
         }
+        sb.append(describedTargets.isEmpty() ? verb.substring(1) : verb);
         sb.append(abilities.getMultiRule(targetObjectName));
         if (!durationRuleAtStart && !duration.toString().isEmpty() && duration != Duration.EndOfGame) {
             sb.append(' ').append(duration);

@@ -33,6 +33,8 @@ public class GainAbilityControlledEffect extends GainAbilityTargetEffect {
         }
         filterCopy.add(TargetController.YOU.getControllerPredicate());
         this.setTargetPointer(new FilterAllPermanentsTargetPointer(filterCopy, duration!=Duration.WhileOnBattlefield));
+        this.getTargetPointer().setTargetDescription(BoostGenericEffect.describeFiltered(
+                filter, excludeSource, BoostGenericEffect.ControlSuffix.UNLESS_MENTIONED));
 
         this.generateGainAbilityDependencies(abilities, filter);
     }

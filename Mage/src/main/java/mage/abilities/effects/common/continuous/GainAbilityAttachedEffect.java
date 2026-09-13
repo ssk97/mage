@@ -65,6 +65,9 @@ public class GainAbilityAttachedEffect extends GainAbilityTargetEffect {
 
     @Override
     public String getText(Mode mode) {
-        return super.getText(mode)+(doesntRemoveItself?". This effect doesn't remove {this}.":"");
+        if (staticText != null) {
+            return staticText;
+        }
+        return super.getText(mode) + (doesntRemoveItself ? ". This effect doesn't remove {this}." : "");
     }
 }

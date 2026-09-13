@@ -13,6 +13,7 @@ import mage.cards.CardImpl;
 import mage.cards.CardSetInfo;
 import mage.constants.AttachmentType;
 import mage.constants.CardType;
+import mage.constants.Duration;
 import mage.constants.Outcome;
 import mage.constants.SubType;
 import mage.game.Game;
@@ -60,7 +61,8 @@ public final class HoldForRansom extends CardImpl {
 class HoldForRansomGainEffect extends GainAbilityAttachedEffect {
 
     HoldForRansomGainEffect() {
-        super(new ActivateAsSorceryActivatedAbility(new HoldForRansomSacrificeEffect(), new GenericManaCost(7)), AttachmentType.AURA);
+        super(new ActivateAsSorceryActivatedAbility(new HoldForRansomSacrificeEffect(), new GenericManaCost(7)),
+                AttachmentType.AURA, Duration.WhileOnBattlefield, null, "Aura");
         this.getTargetPointer().setTargetDescription("");
     }
 

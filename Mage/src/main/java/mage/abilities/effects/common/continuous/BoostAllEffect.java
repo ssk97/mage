@@ -52,7 +52,7 @@ public class BoostAllEffect extends BoostGenericEffect {
         }
         this.staticText = rule;
         this.setTargetPointer(new FilterAllPermanentsTargetPointer(filter, duration != Duration.WhileOnBattlefield && duration != Duration.EndOfGame));
-        this.getTargetPointer().setTargetDescription((excludeSource?"other ":"")+filter.getMessage());
+        this.getTargetPointer().setTargetDescription(describeFiltered(filter, excludeSource, ControlSuffix.NONE));
     }
 
 

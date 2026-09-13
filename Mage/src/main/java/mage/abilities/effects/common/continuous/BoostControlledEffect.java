@@ -42,7 +42,7 @@ public class BoostControlledEffect extends BoostAllEffect {
         }
         filterCopy.add(TargetController.YOU.getControllerPredicate());
         this.setTargetPointer(new FilterAllPermanentsTargetPointer(filterCopy, duration != Duration.WhileOnBattlefield && duration != Duration.EndOfGame));
-        this.getTargetPointer().setTargetDescription((excludeSource?"other ":"")+filterCopy.getMessage()+" you control");
+        this.getTargetPointer().setTargetDescription(describeFiltered(filter, excludeSource, ControlSuffix.UNLESS_TRAILING));
     }
 
     protected BoostControlledEffect(final BoostControlledEffect effect) {

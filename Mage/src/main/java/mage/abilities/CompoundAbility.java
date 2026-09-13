@@ -55,10 +55,11 @@ public class CompoundAbility extends AbilitiesImpl<Ability> {
             } else {
                 rule = CardUtil.stripReminderText(ability.getRule("this " + targetObjectName));
             }
-            if ((rule.length()-rule.replace(" ","").length() >= 2) && !rule.startsWith("protection from")){
-                rules.add('"'+rule+'"');
+            String bare = rule.replaceAll("(?is)\\s*\\(?<i>.*?</i>\\)?", "").trim();
+            if ((bare.length() - bare.replace(" ", "").length() >= 2) && !bare.startsWith("protection from")) {
+                rules.add('"' + CardUtil.getTextWithFirstCharUpperCase(rule) + '"');
             } else {
-                rules.add(rule);
+                rules.add(CardUtil.getTextWithFirstCharLowerCase(rule));
             }
         }
         for (int index = 0; index < rules.size(); index++) {
