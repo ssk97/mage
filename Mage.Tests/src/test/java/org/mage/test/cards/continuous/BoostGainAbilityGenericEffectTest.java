@@ -7,6 +7,7 @@ import mage.abilities.keyword.ForestwalkAbility;
 import mage.abilities.keyword.HasteAbility;
 import mage.abilities.keyword.LifelinkAbility;
 import mage.abilities.keyword.TrampleAbility;
+import mage.constants.EmptyNames;
 import mage.constants.PhaseStep;
 import mage.constants.Planes;
 import mage.constants.Zone;
@@ -278,6 +279,33 @@ public class BoostGainAbilityGenericEffectTest extends CardTestPlayerBase {
 
         assertAbility(playerA, "Grizzly Bears", new ExaltedAbility(), true);
         assertAbility(playerA, "Silvercoat Lion", new ExaltedAbility(), true);
+    }
+
+    /**
+     * Bile Blight: "Target creature and all other creatures with the same name as that creature get
+     * -3/-3 until end of turn." A face down creature has no name and so shares one with nothing,
+     * which is why its filter has to match the target by identity as well as by name.
+     */
+    @Test
+    public void testNamelessTargetIsStillReached() {
+        // two spare Swamps, so the morph's generic {3} cannot strand the {B}{B}
+        addCard(Zone.BATTLEFIELD, playerA, "Swamp", 5);
+        addCard(Zone.HAND, playerA, "Pine Walker"); // face down for {3}
+        addCard(Zone.HAND, playerA, "Bile Blight");
+        addCard(Zone.BATTLEFIELD, playerB, "Grizzly Bears");
+
+        castSpell(1, PhaseStep.PRECOMBAT_MAIN, playerA, "Pine Walker using Morph");
+        waitStackResolved(1, PhaseStep.PRECOMBAT_MAIN);
+        castSpell(1, PhaseStep.PRECOMBAT_MAIN, playerA, "Bile Blight",
+                EmptyNames.FACE_DOWN_CREATURE.getTestCommand());
+
+        setStrictChooseMode(true);
+        setStopAt(1, PhaseStep.BEGIN_COMBAT);
+        execute();
+
+        // the 2/2 face down creature died, and went to the graveyard face up
+        assertGraveyardCount(playerA, "Pine Walker", 1);
+        assertPowerToughness(playerB, "Grizzly Bears", 2, 2);
     }
 
     // ------------------------------------------------------------------ what gets granted
