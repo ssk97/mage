@@ -41,19 +41,19 @@ public class BileBlightTest extends CardTestPlayerBase {
      */
     @Test
     public void test_faceDownTargetIsHitAndSweepsNothingElse() {
-        addCard(Zone.BATTLEFIELD, playerA, "Forest", 3);
-        addCard(Zone.BATTLEFIELD, playerA, "Swamp", 2);
-        addCard(Zone.HAND, playerA, "Pine Walker"); // Morph {4}{G}, face down for {3}
+        // two spare Swamps, so the morph's generic {3} cannot strand the {B}{B}
+        addCard(Zone.BATTLEFIELD, playerA, "Swamp", 5);
+        addCard(Zone.HAND, playerA, "Pine Walker"); // face down for {3}
         addCard(Zone.HAND, playerA, "Bile Blight");
         addCard(Zone.BATTLEFIELD, playerB, "Grizzly Bears");
 
-        // morph on turn 1 and the Blight on turn 3, so its generic {3} cannot eat the black mana
         castSpell(1, PhaseStep.PRECOMBAT_MAIN, playerA, "Pine Walker using Morph");
-        castSpell(3, PhaseStep.PRECOMBAT_MAIN, playerA, "Bile Blight",
+        waitStackResolved(1, PhaseStep.PRECOMBAT_MAIN);
+        castSpell(1, PhaseStep.PRECOMBAT_MAIN, playerA, "Bile Blight",
                 EmptyNames.FACE_DOWN_CREATURE.getTestCommand());
 
         setStrictChooseMode(true);
-        setStopAt(3, PhaseStep.BEGIN_COMBAT);
+        setStopAt(1, PhaseStep.BEGIN_COMBAT);
         execute();
 
         // the 2/2 face down creature died, and went to the graveyard face up
