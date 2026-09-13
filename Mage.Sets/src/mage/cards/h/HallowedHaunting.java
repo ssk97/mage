@@ -3,7 +3,6 @@ package mage.cards.h;
 import java.util.UUID;
 
 import mage.abilities.Ability;
-import mage.abilities.CompoundAbility;
 import mage.abilities.common.SimpleStaticAbility;
 import mage.abilities.common.SpellCastControllerTriggeredAbility;
 import mage.abilities.condition.Condition;
@@ -32,7 +31,8 @@ public final class HallowedHaunting extends CardImpl {
 
         // As long as you control seven or more enchantments, creatures you control have flying and vigilance.
         this.addAbility(new SimpleStaticAbility(new ConditionalContinuousEffect(
-                new GainAbilityControlledEffect(new CompoundAbility(FlyingAbility.getInstance(), VigilanceAbility.getInstance()), Duration.WhileOnBattlefield, StaticFilters.FILTER_PERMANENT_CREATURES),
+                new GainAbilityControlledEffect(Duration.WhileOnBattlefield, StaticFilters.FILTER_PERMANENT_CREATURES,
+                        FlyingAbility.getInstance(), VigilanceAbility.getInstance()),
                 HallowedHauntingCondition.instance,
                 "As long as you control seven or more enchantments, creatures you control have flying and vigilance"
         )));

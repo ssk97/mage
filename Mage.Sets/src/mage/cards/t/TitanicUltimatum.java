@@ -2,7 +2,6 @@
 package mage.cards.t;
 
 import java.util.UUID;
-import mage.abilities.CompoundAbility;
 import mage.abilities.effects.common.continuous.BoostControlledEffect;
 import mage.abilities.effects.common.continuous.GainAbilityControlledEffect;
 import mage.abilities.keyword.FirstStrikeAbility;
@@ -26,9 +25,10 @@ public final class TitanicUltimatum extends CardImpl {
         // Until end of turn, creatures you control get +5/+5 and gain first strike, trample, and lifelink.
         this.getSpellAbility().addEffect(new BoostControlledEffect(5, 5, Duration.EndOfTurn, StaticFilters.FILTER_PERMANENT_CREATURES)
                 .setText("Until end of turn, creatures you control get +5/+5"));
-        CompoundAbility ability = new CompoundAbility(FirstStrikeAbility.getInstance(), TrampleAbility.getInstance(), LifelinkAbility.getInstance());
-        this.getSpellAbility().addEffect(new GainAbilityControlledEffect(ability, Duration.EndOfTurn, StaticFilters.FILTER_PERMANENT_CREATURES)
-                .setText("and gain first strike, trample, and lifelink"));
+        this.getSpellAbility().addEffect(new GainAbilityControlledEffect(
+                Duration.EndOfTurn, StaticFilters.FILTER_PERMANENT_CREATURES,
+                FirstStrikeAbility.getInstance(), TrampleAbility.getInstance(), LifelinkAbility.getInstance()
+        ).setText("and gain first strike, trample, and lifelink"));
     }
 
     private TitanicUltimatum(final TitanicUltimatum card) {

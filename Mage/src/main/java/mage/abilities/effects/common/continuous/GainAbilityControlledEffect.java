@@ -1,7 +1,6 @@
 package mage.abilities.effects.common.continuous;
 
 import mage.abilities.Ability;
-import mage.abilities.CompoundAbility;
 import mage.constants.Duration;
 import mage.constants.TargetController;
 import mage.filter.FilterPermanent;
@@ -14,29 +13,29 @@ import mage.target.targetpointer.FilterAllPermanentsTargetPointer;
 public class GainAbilityControlledEffect extends GainAbilityTargetEffect {
 
     public GainAbilityControlledEffect(Ability ability, Duration duration, FilterPermanent filter) {
-        this(ability, duration, filter, false);
-    }
-
-    public GainAbilityControlledEffect(CompoundAbility ability, Duration duration, FilterPermanent filter) {
-        this(ability, duration, filter, false);
+        this(duration, filter, false, ability);
     }
 
     public GainAbilityControlledEffect(Ability ability, Duration duration, FilterPermanent filter, boolean excludeSource) {
-        this(new CompoundAbility(ability), duration, filter, excludeSource);
+        this(duration, filter, excludeSource, ability);
     }
 
-    public GainAbilityControlledEffect(CompoundAbility abilities, Duration duration, FilterPermanent filter, boolean excludeSource) {
-        super(abilities, duration);
+    public GainAbilityControlledEffect(Duration duration, FilterPermanent filter, Ability... abilities) {
+        this(duration, filter, false, abilities);
+    }
+
+    public GainAbilityControlledEffect(Duration duration, FilterPermanent filter, boolean excludeSource, Ability... abilities) {
+        super(duration, abilities);
         FilterPermanent filterCopy = filter.copy();
         if (excludeSource) {
             filterCopy.add(AnotherPredicate.instance);
         }
         filterCopy.add(TargetController.YOU.getControllerPredicate());
-        this.setTargetPointer(new FilterAllPermanentsTargetPointer(filterCopy, duration!=Duration.WhileOnBattlefield));
-        this.getTargetPointer().setTargetDescription(BoostGenericEffect.describeFiltered(
-                filter, excludeSource, BoostGenericEffect.ControlSuffix.UNLESS_MENTIONED));
+        this.setTargetPointer(new FilterAllPermanentsTargetPointer(filterCopy, duration != Duration.WhileOnBattlefield));
+        this.getTargetPointer().setTargetDescription(
+                describeFiltered(filter, excludeSource, ControlSuffix.UNLESS_MENTIONED));
 
-        this.generateGainAbilityDependencies(abilities, filter);
+        this.generateGainAbilityDependencies(getGrantedAbilities(), filter);
     }
 
     protected GainAbilityControlledEffect(final GainAbilityControlledEffect effect) {
@@ -47,5 +46,4 @@ public class GainAbilityControlledEffect extends GainAbilityTargetEffect {
     public GainAbilityControlledEffect copy() {
         return new GainAbilityControlledEffect(this);
     }
-
 }
