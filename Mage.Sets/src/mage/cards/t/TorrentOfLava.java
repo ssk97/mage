@@ -86,7 +86,7 @@ class TorrentOfLavaGainAbilityEffect extends GainAbilityAllEffect {
         effect.setText("Prevent the next 1 damage that would be dealt to {this} by "
                 + GameLog.getColoredObjectIdNameForTooltip(spell.getColor(game), idName) + " this turn");
 
-        ability = new SimpleActivatedAbility(effect, new TapSourceCost());
+        setGrantedAbilities(new SimpleActivatedAbility(effect, new TapSourceCost()));
         return super.apply(game, source);
     }
 

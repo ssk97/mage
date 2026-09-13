@@ -88,7 +88,9 @@ class GrothamaAllDevouringGainAbilityEffect extends GainAbilityAllEffect {
         if (permanent == null) {
             return false;
         }
-        ability = new AttacksTriggeredAbility(new GrothamaAllDevouringFightEffect(permanent.getId(), permanent.getName()), true);
+        setGrantedAbilities(new AttacksTriggeredAbility(
+                new GrothamaAllDevouringFightEffect(permanent.getId(), permanent.getName()), true
+        ));
         return super.apply(game, source);
     }
 }

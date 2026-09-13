@@ -31,7 +31,7 @@ public final class CloakwoodHermit extends CardImpl {
                         TargetController.YOU, new CreateTokenEffect(new SquirrelToken(), 2, true, false),
                         false, CreaturePutInYourGraveyardCondition.instance
                 ), Duration.WhileOnBattlefield, StaticFilters.FILTER_CREATURES_OWNED_COMMANDER
-        ).withForceQuotes()).addHint(CreaturePutInYourGraveyardCondition.getHint()), new CreaturePutIntoGraveyardWatcher());
+        )).addHint(CreaturePutInYourGraveyardCondition.getHint()), new CreaturePutIntoGraveyardWatcher());
     }
 
     private CloakwoodHermit(final CloakwoodHermit card) {

@@ -11,6 +11,7 @@ import mage.filter.FilterCard;
 import mage.filter.FilterPermanent;
 import mage.filter.predicate.mageobject.ColorPredicate;
 import mage.game.Game;
+import mage.game.permanent.Permanent;
 import mage.players.Player;
 import mage.util.CardUtil;
 
@@ -37,15 +38,6 @@ public class GainProtectionFromColorAllEffect extends GainAbilityAllEffect {
     }
 
     @Override
-    public boolean apply(Game game, Ability source) {
-        FilterCard protectionFilter = (FilterCard) ((ProtectionAbility) ability).getFilter();
-        protectionFilter.add(new ColorPredicate(choice.getColor()));
-        protectionFilter.setMessage(choice.getChoice());
-        ((ProtectionAbility) ability).setFilter(protectionFilter);
-        return super.apply(game, source);
-    }
-
-    @Override
     public void init(Ability source, Game game) {
         super.init(source, game);
         MageObject sourceObject = game.getObject(source);
@@ -60,12 +52,23 @@ public class GainProtectionFromColorAllEffect extends GainAbilityAllEffect {
     }
 
     @Override
+    public void afterGain(Game game, Ability source, Permanent permanent, Ability addedAbility) {
+        if (addedAbility instanceof ProtectionAbility) {
+            FilterCard protectionFilter = new FilterCard();
+            protectionFilter.add(new ColorPredicate(choice.getColor()));
+            protectionFilter.setMessage(choice.getChoice());
+            ((ProtectionAbility) addedAbility).setFilter(protectionFilter);
+        }
+    }
+
+    @Override
     public String getText(Mode mode) {
         if (staticText != null && !staticText.isEmpty()) {
             return staticText;
         }
 
-        return "Choose a color. " + CardUtil.getTextWithFirstCharUpperCase(filter.getMessage())
+        return "Choose a color. "
+                + CardUtil.getTextWithFirstCharUpperCase(getTargetPointer().describeTargets(mode.getTargets(), "it"))
                 + " gain protection from the chosen color " + duration.toString();
     }
 }

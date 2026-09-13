@@ -206,6 +206,14 @@ public class GainAbilityTargetEffect extends ContinuousEffectImpl {
         //
     }
 
+    /**
+     * Replace the granted abilities, for effects that can only build them from runtime state
+     * (example: Grothama, All-Devouring). Call it from apply, before delegating to super.
+     */
+    protected void setGrantedAbilities(Ability... newAbilities) {
+        this.abilities = new CompoundAbility(newAbilities);
+    }
+
     public GainAbilityTargetEffect withDurationRuleAtStart(boolean durationRuleAtStart) {
         this.durationRuleAtStart = durationRuleAtStart;
         return this;
