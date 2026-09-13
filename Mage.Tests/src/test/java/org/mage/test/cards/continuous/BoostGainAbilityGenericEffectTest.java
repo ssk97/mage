@@ -179,8 +179,7 @@ public class BoostGainAbilityGenericEffectTest extends CardTestPlayerBase {
         addCard(Zone.BATTLEFIELD, playerA, "Silvercoat Lion"); // 2/2
         addCard(Zone.HAND, playerA, "Briar Shield");
 
-        castSpell(1, PhaseStep.PRECOMBAT_MAIN, playerA, "Briar Shield", "Silvercoat Lion");
-        waitStackResolved(1, PhaseStep.PRECOMBAT_MAIN);
+        castSpell(1, PhaseStep.PRECOMBAT_MAIN, playerA, "Briar Shield", "Silvercoat Lion", true);
         checkPT("aura attached", 1, PhaseStep.PRECOMBAT_MAIN, playerA, "Silvercoat Lion", 3, 3);
         activateAbility(1, PhaseStep.PRECOMBAT_MAIN, playerA, "Sacrifice {this}");
 
@@ -288,14 +287,14 @@ public class BoostGainAbilityGenericEffectTest extends CardTestPlayerBase {
      */
     @Test
     public void testNamelessTargetIsStillReached() {
-        // two spare Swamps, so the morph's generic {3} cannot strand the {B}{B}
-        addCard(Zone.BATTLEFIELD, playerA, "Swamp", 5);
-        addCard(Zone.HAND, playerA, "Pine Walker"); // face down for {3}
+        // spare Swamps, so the two morphs' generic {3} cannot strand the {B}{B}
+        addCard(Zone.BATTLEFIELD, playerA, "Swamp", 10);
+        addCard(Zone.HAND, playerA, "Pine Walker", 2); // face down for {3} each
         addCard(Zone.HAND, playerA, "Bile Blight");
         addCard(Zone.BATTLEFIELD, playerB, "Grizzly Bears");
 
-        castSpell(1, PhaseStep.PRECOMBAT_MAIN, playerA, "Pine Walker using Morph");
-        waitStackResolved(1, PhaseStep.PRECOMBAT_MAIN);
+        castSpell(1, PhaseStep.PRECOMBAT_MAIN, playerA, "Pine Walker using Morph", true);
+        castSpell(1, PhaseStep.PRECOMBAT_MAIN, playerA, "Pine Walker using Morph", true);
         castSpell(1, PhaseStep.PRECOMBAT_MAIN, playerA, "Bile Blight",
                 EmptyNames.FACE_DOWN_CREATURE.getTestCommand());
 
@@ -303,8 +302,10 @@ public class BoostGainAbilityGenericEffectTest extends CardTestPlayerBase {
         setStopAt(1, PhaseStep.BEGIN_COMBAT);
         execute();
 
-        // the 2/2 face down creature died, and went to the graveyard face up
+        // whichever one was targeted died and went to the graveyard face up -- the other shares no
+        // name with it, so exactly one of the two is left
         assertGraveyardCount(playerA, "Pine Walker", 1);
+        assertPermanentCount(playerA, EmptyNames.FACE_DOWN_CREATURE.getTestCommand(), 1);
         assertPowerToughness(playerB, "Grizzly Bears", 2, 2);
     }
 
@@ -333,7 +334,8 @@ public class BoostGainAbilityGenericEffectTest extends CardTestPlayerBase {
 
     /**
      * Thran Weaponry: "{2}, {T}: All creatures get +2/+2 for as long as Thran Weaponry remains
-     * tapped." 611.2b -- once the condition breaks the effect is over, it does not come back.
+     * tapped." 611.2b -- once the condition breaks the effect is over and does not come back, but
+     * while it holds the boost outlives the turn it was made in.
      */
     @Test
     public void testForAsLongAsEndsForGood() {
@@ -352,11 +354,15 @@ public class BoostGainAbilityGenericEffectTest extends CardTestPlayerBase {
         checkPT("boost gone once untapped", 1, PhaseStep.PRECOMBAT_MAIN, playerA, "Grizzly Bears", 2, 2);
 
         activateAbility(1, PhaseStep.POSTCOMBAT_MAIN, playerA, "{2}, {T}: All creatures get +2/+2");
+        checkPT("second activation", 1, PhaseStep.END_TURN, playerA, "Grizzly Bears", 2 + 2, 2 + 2);
 
+        // Thran Weaponry is still tapped through the opponent's turn, so the boost is too -- it ends
+        // with the condition, not with the turn it was made in
         setStrictChooseMode(true);
-        setStopAt(1, PhaseStep.END_TURN);
+        setStopAt(2, PhaseStep.END_TURN);
         execute();
 
+        assertTapped("Thran Weaponry", true);
         assertPowerToughness(playerA, "Grizzly Bears", 2 + 2, 2 + 2); // the second activation, not both
     }
 
@@ -372,8 +378,7 @@ public class BoostGainAbilityGenericEffectTest extends CardTestPlayerBase {
         addCard(Zone.BATTLEFIELD, playerA, "Knight of Dawn");
         addCard(Zone.HAND, playerA, "Unholy Strength"); // black Aura, +2/+1
 
-        castSpell(1, PhaseStep.PRECOMBAT_MAIN, playerA, "Unholy Strength", "Knight of Dawn");
-        waitStackResolved(1, PhaseStep.PRECOMBAT_MAIN);
+        castSpell(1, PhaseStep.PRECOMBAT_MAIN, playerA, "Unholy Strength", "Knight of Dawn", true);
         activateAbility(1, PhaseStep.PRECOMBAT_MAIN, playerA, "{W}{W}: ");
         setChoice(playerA, "Blue");
 

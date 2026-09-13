@@ -39,10 +39,9 @@ public class ArchangelOfStrifeTest extends CardTestPlayerBase {
         checkPT("B chose peace", 1, PhaseStep.BEGIN_COMBAT, playerB, "Grizzly Bears", 2, 2 + 3);
 
         // it enters again, so both players choose again -- this time the other way round
-        castSpell(1, PhaseStep.POSTCOMBAT_MAIN, playerA, "Cloudshift", "Archangel of Strife");
+        castSpell(1, PhaseStep.POSTCOMBAT_MAIN, playerA, "Cloudshift", "Archangel of Strife", true);
         setChoice(playerA, "peace");
         setChoice(playerB, "war");
-        waitStackResolved(1, PhaseStep.POSTCOMBAT_MAIN);
 
         castSpell(1, PhaseStep.POSTCOMBAT_MAIN, playerA, "Memnite");
 
