@@ -192,6 +192,8 @@ public class CardArea extends JPanel implements CardEventProducer {
 
     private void addCard(CardView card, BigCard bigCard, UUID gameId, Rectangle rectangle) {
         if (card instanceof AbilityView) {
+            // mutates the source card view in place, like Cards.loadCards does; no reset branch is needed
+            // because addCard only runs when a new panel is created
             CardView tmp = ((AbilityView) card).getSourceCard();
             tmp.overrideRules(card.getRules());
             tmp.setIsAbility(true);

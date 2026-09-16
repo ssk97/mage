@@ -1013,6 +1013,8 @@ public class CardView extends SimpleCardView {
                 && Objects.equals(a.getRarity(), b.getRarity())
                 && a.getFrameStyle() == b.getFrameStyle()
                 && Objects.equals(a.getCounters(), b.getCounters())
+                && a.isAbility() == b.isAbility() // an ability is drawn with a different frame, so it must not share a rendered image with its source card
+                && Objects.equals(a.getAbilityType(), b.getAbilityType())
                 && a.isFaceDown() == b.isFaceDown())) {
             return false;
         }

@@ -85,6 +85,8 @@ public class CardPanelRenderModeMTGO extends CardPanel {
             sb.append((char) (this.view.isCanAttack() ? 1 : 0));
             sb.append((char) (this.view.isCanBlock() ? 1 : 0));
             sb.append((char) (this.view.isFaceDown() ? 1 : 0));
+            sb.append((char) (this.view.isAbility() ? 1 : 0));
+            sb.append(this.view.getAbilityType());
             sb.append((char) (this.view.getFrameStyle() != null ? this.view.getFrameStyle().ordinal() : -1));
             if (this.view instanceof PermanentView) {
                 sb.append((char) (((PermanentView) this.view).hasSummoningSickness() ? 1 : 0));
@@ -134,11 +136,14 @@ public class CardPanelRenderModeMTGO extends CardPanel {
             }
             final ImageKey that = (ImageKey) object;
 
+            // a field checked in hashCodeImpl but not here only splits cache buckets, which is harmless;
+            // a field checked in neither lets two different renders of the same card share one image
             return (artImage == null) == (that.artImage == null)
                     && this.width == that.width
                     && this.height == that.height
                     && this.isChoosable == that.isChoosable
                     && this.isSelected == that.isSelected
+                    && this.isTransformed == that.isTransformed
                     && CardView.cardViewEquals(this.view, that.view);
         }
     }

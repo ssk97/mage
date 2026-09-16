@@ -193,6 +193,8 @@
                  tmp.getCardIcons().addAll(card.getCardIcons());
                  card = tmp;
              } else {
+                 // loadCards mutates the source card view of an ability in place above, so reset both flags here
+                 card.setIsAbility(false);
                  card.setAbilityType(null);
              }
              if (!cards.containsKey(card.getId())) {
